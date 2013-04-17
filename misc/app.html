@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>
+        </title>
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.2.0/jquery.mobile-1.2.0.min.css" />
+        <link rel="stylesheet" href="my.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js">
+        </script>
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery.mobile/1.2.0/jquery.mobile-1.2.0.min.js">
+        </script>
+        <script src="my.js">
+        </script>
+    </head>
+    <body>
+        <!-- Login Box -->
+        <div data-role="page" id="page1">
+            <div data-role="content">
+                <form action="">
+                    <div data-role="fieldcontain">
+                        <fieldset data-role="controlgroup">
+                            <label for="lemail">
+                            </label>
+                            <input name="" id="lemail" placeholder="" value="Email Address" type="email" />
+                        </fieldset>
+                    </div>
+                    <div data-role="fieldcontain">
+                        <fieldset data-role="controlgroup">
+                            <label for="textinput4">
+                            </label>
+                            <input name="" id="textinput4" placeholder="" value="Password" type="password" />
+                        </fieldset>
+                    </div>
+                    <input id="lbtn" type="submit" data-inline="true" data-theme="b" value="Log In" />
+                    <div>
+                        <a href="" data-transition="fade">
+                            Forgot Password?
+                        </a>
+                    </div>
+                </form>
+                <div style="display: none;" class="fb-login-button" data-show-faces="true" data-width="300" data-max-rows="2" data-height="50px">Log In with Facebook</div>
+                <h2>
+                    OR
+                </h2>
+                <a data-role="button" data-theme="b" href="#page1">
+                    Sign Up with Email
+                </a>
+            </div>
+        </div>
+    </body>
+</html>
