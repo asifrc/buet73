@@ -7,6 +7,15 @@
  * CRUD interface to mongoDB,
  * and router interface to Express
  *
+ * Instantiated with a constructor,
+ *  - takes mongoose connection as parameter
 */
-
-exports.x = 10;
+module.exports = function(db) {
+	this.dbb = db;
+	this.connect = function(me) {
+		return function(cb) {
+			me.dbb.once('open', cb);
+		}
+	}(this);
+	return this;
+};
