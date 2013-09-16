@@ -1,15 +1,10 @@
 //Bismillah 
 
 var assert = require("assert");
+var user = require("../routes/user");
 
-describe("Bismillah", function() {
-	for (var i=0; i<5; i++)
-	{
-		it("should pass "+i, function() {
-			assert.equal(true, true );
-		});
-	}
-	it("should fail ", function() {
-		assert.equal(true, false );
+describe("User", function() {
+	it("should a property of x with the value of 10", function() {
+		assert.equal(10, user.x );
 	});
 });

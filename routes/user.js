@@ -1,8 +1,12 @@
+//Bismillah
 
 /*
- * GET users listing.
- */
+ * USER MODEL
+ * ----------
+ * Contains User schema for Mongoose,
+ * CRUD interface to mongoDB,
+ * and router interface to Express
+ *
+*/
 
-exports.list = function(req, res){
-  res.send("respond with a resource");
-};
+exports.x = 10;
