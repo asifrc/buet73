@@ -1,11 +1,17 @@
 {
   "name": "Buet73",
   "version": "0.0.1",
+  "description": "http://www.buet73.com",
+  "repository": {
+    "type": "git",
+    "url": "https://bitbucket.org/asifrc/buet73.git"
+  },
   "private": true,
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "3.3.4"
+    "express": "3.3.4",
+	"mongoose": "3.6.*"
   }
 }

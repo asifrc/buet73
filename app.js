@@ -1,13 +1,22 @@
-
+//Bismillah
 /**
  * Module dependencies.
  */
 
 var express = require('express')
-  , routes = require('./routes')
-  , user = require('./routes/user')
-  , http = require('http')
-  , path = require('path');
+	, user = require('./routes/user')
+	, http = require('http')
+	, path = require('path')
+	, mongoose = require('mongoose');
+
+//Connect to MongoDB
+var mongoUrl = "mongodb://localhost/buet73";
+mongoose.connect(mongoUrl);
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function cb() {
+	console.log("Connected to MongoDB at "+mongoUrl); //DEV
+});
 
 var app = express();
 
@@ -24,12 +33,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
 if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
+	app.use(express.errorHandler());
 }
 
-app.get('/', routes.index);
-app.get('/users', user.list);
+/**
+ * Routes
+ */
+ 
+//Index
+app.get('/', function(req, res) {
+	res.sendfile('./views/index.html');
+});
+
+//DEV ROUTES
+app.get('/dev/dbtest', function(req, res) {
+	res.send("DB Test :)");
+});
 
 http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+	console.log("Bismillah");
+	console.log('Express server listening on port ' + app.get('port'));
 });
