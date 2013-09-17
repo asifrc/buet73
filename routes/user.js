@@ -61,7 +61,7 @@ module.exports = function(mongoose) {
 		var resp = new Resp();
 		
 		//Check for required fields
-		var userObj = postData
+		
 		var reqFields = [
 			'firstName',
 			'lastName',
@@ -69,14 +69,29 @@ module.exports = function(mongoose) {
 			'department',
 			'email',
 			'password',
+			'country'
+		];
+		var optFields = [
+			'fbid',
 			'phone',
 			'address',
 			'city',
 			'stateProv',
-			'zip',
-			'country'
+			'zip'
 		];
 		
+		var userObj = {};
+		//Add all required fields to userObj, return error if missing
+		for (var i=0; i<reqFields.length; i++)
+		{
+			var field = reqFields[i];
+			if (typeof postData[field] === "undefined")
+			{
+				resp.error = "Bad request: "+field+" field is missing";
+				return resp;
+			}
+			userObj[field] = postData[field];
+		}
 		
 		//Check for matching passwords
 		

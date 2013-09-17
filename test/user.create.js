@@ -58,11 +58,6 @@ describe("User Module", function() {
 				'department',
 				'email',
 				'password',
-				'phone',
-				'address',
-				'city',
-				'stateProv',
-				'zip',
 				'country'
 			];
 			describe("Missing Required Field", function() {
