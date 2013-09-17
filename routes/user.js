@@ -58,6 +58,15 @@ module.exports = function(mongoose) {
 		}
 	};
 	
+	var respond = function(ret, cb) {
+		if (typeof cb === "function")
+		{
+			cb(ret);
+		}
+		return ret;
+	};
+		
+	
 
 	
 	/* 
@@ -95,7 +104,7 @@ module.exports = function(mongoose) {
 			if (typeof postData[field] === "undefined")
 			{
 				resp.error = "Bad request: "+field+" field is missing";
-				return resp;
+				return respond(resp);
 			}
 			userObj[field] = postData[field];
 		}
@@ -112,32 +121,41 @@ module.exports = function(mongoose) {
 		//Check for matching passwords and encrypt on success
 		if (typeof postData.cpassword !== "undefined")
 		{
-			if (userObj.password == postData.cpassword)
+			if (userObj.password==postData.cpassword)
 			{
-				//On successful match, encrypt password
-				var pwhash = crypto.createHash('md5');
-				pwhash.update(userObj.password);
-				userObj.password = pwhash.digest('hex');
+				if (userObj.password.length>0)
+				{
+					//On successful match, encrypt password
+					var pwhash = crypto.createHash('md5');
+					pwhash.update(userObj.password);
+					userObj.password = pwhash.digest('hex');
+				}
+				else
+				{
+					resp.error = "Password cannot be blank";
+					return respond(resp);
+				}
 			}
 			else
 			{
 				resp.error = "Passwords do not match";
-				return resp;
+				return respond(resp);
 			}
 		}
 		else
 		{
 			resp.error = "Password must be confirmed";
-			return resp;
+			return respond(resp);
 		}
 		
 		//Create user object from model
-		user = new User(userObj);
+		var user = new User(userObj);
 		
 		//Save to database
+		//user.save(function(err);
 		
 		//Return User Object
-		return resp;
+		return respond(resp);
 	};
 	
 	

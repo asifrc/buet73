@@ -72,7 +72,7 @@ describe("User Module", function() {
 					});
 				}
 			});
-			describe("Invalid Password Confirmation", function() {
+			describe("Invalid Password", function() {
 				it("should return an error when confirmation field is missing", function() {
 					delete bob.cpassword;
 					assert.equal(user.register(bob).error, "Password must be confirmed");
@@ -80,6 +80,22 @@ describe("User Module", function() {
 				it("should return an error on mismatch", function() {
 					bob.cpassword = "mismatch";
 					assert.equal(user.register(bob).error, "Passwords do not match");
+				});
+				it("should return an error when blank", function() {
+					bob.password = "";
+					bob.cpassword = "";
+					assert.equal(user.register(bob).error, "Password cannot be blank");
+				});
+			});
+			
+			describe("Asynch call", function() {
+				it("should return an error when blank", function(done) {
+					bob.password = "";
+					bob.cpassword = "";
+					user.register(bob, function(resp) {
+						assert.equal(resp, "Password cannot be blank");
+						done();
+					});
 				});
 			});
 			
