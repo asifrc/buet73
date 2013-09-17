@@ -15,14 +15,6 @@
 //Export Constructor
 module.exports = function(mongoose) {
 
-	//Mongoose Connection to MongoDB
-	var db = mongoose.connection;
-	
-	//Connect to MongoDB
-	this.connect = function(cb) {
-			db.once('open', cb);
-	};
-	
 	//User Schema
 	var schema = new mongoose.Schema({
 		fbid: String,
@@ -47,6 +39,43 @@ module.exports = function(mongoose) {
 	
 	//Export Model
 	this.model = User;
+	
+	//JSON response object
+	var Resp = function(obj) {
+		this.error = null;
+		this.data = null;
+		if (typeof obj === "object")
+		{
+			for (o in obj)
+			{
+				this[o] = obj.o;
+			}
+		}
+	};
+	
+	//Convert POSTed data into user object, returns 
+	
+	//Register User (Save to Database)
+	this.register = function(postData, cb) {
+		//JSON response object
+		var resp = new Resp();
+		
+		//Check for required fields
+		var userObj = postData
+		
+		
+		//Check for matching passwords
+		
+		//Create user object from model
+		user = new User(userObj);
+		
+		//Save to database
+		
+		//Return User Object
+		return resp;
+	};
+	
+	
 	
 	return this;
 };
