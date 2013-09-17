@@ -51,6 +51,30 @@ describe("User Module", function() {
 			
 		});
 		describe("Registration", function() {
+			var reqFields = [
+				'firstName',
+				'lastName',
+				'displayName',
+				'department',
+				'email',
+				'password',
+				'phone',
+				'address',
+				'city',
+				'stateProv',
+				'zip',
+				'country'
+			];
+			describe("Missing Required Field", function() {
+				for (var i=0; i<reqFields.length; i++)
+				{
+					var field = reqFields[i];
+					it("should return an error when "+field+" is missing", function() {
+						delete bob[field];
+						assert.equal(user.register(bob).error, "Bad request: "+field+" field is missing");
+					});
+				}
+			});
 			
 			it("should return with no error on successful registration", function() {
 				assert.equal(user.register(bob).error, null);

@@ -62,6 +62,20 @@ module.exports = function(mongoose) {
 		
 		//Check for required fields
 		var userObj = postData
+		var reqFields = [
+			'firstName',
+			'lastName',
+			'displayName',
+			'department',
+			'email',
+			'password',
+			'phone',
+			'address',
+			'city',
+			'stateProv',
+			'zip',
+			'country'
+		];
 		
 		
 		//Check for matching passwords
