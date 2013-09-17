@@ -36,6 +36,7 @@ describe("User Module", function() {
 				department: "Electrical Engineering",
 				email: "rjohnson@asifchoudhury.com",
 				password: "unhashedpassword",
+				cpassword: "unhashedpassword",
 				phone: "1 123 1234",
 				address: "2828 82nd St",
 				city: "Rapid City",
@@ -46,6 +47,7 @@ describe("User Module", function() {
 		});
 		
 		it("should create a User object", function() {
+			delete bob.cpassword;
 			bobby = new user.model(bob);
 			assert.equal(bob.firstName, bobby.firstName);
 			
@@ -70,8 +72,18 @@ describe("User Module", function() {
 					});
 				}
 			});
+			describe("Invalid Password Confirmation", function() {
+				it("should return an error when confirmation field is missing", function() {
+					delete bob.cpassword;
+					assert.equal(user.register(bob).error, "Password must be confirmed");
+				});
+				it("should return an error on mismatch", function() {
+					bob.cpassword = "mismatch";
+					assert.equal(user.register(bob).error, "Passwords do not match");
+				});
+			});
 			
-			it("should return with no error on successful registration", function() {
+			it("should return successful when there are no errors", function() {
 				assert.equal(user.register(bob).error, null);
 			});
 			

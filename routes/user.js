@@ -1,7 +1,7 @@
 //Bismillah
 
 /*
- * USER MODEL
+ * USER MODULE
  * ----------
  * Contains User schema for Mongoose,
  * CRUD interface to mongoDB,
@@ -11,10 +11,15 @@
  *  - takes mongoose as parameter
 */
 
+var crypto = require('crypto');
 
 //Export Constructor
 module.exports = function(mongoose) {
 
+	/*
+		User Schema and Model
+	*/
+	
 	//User Schema
 	var schema = new mongoose.Schema({
 		fbid: String,
@@ -53,9 +58,11 @@ module.exports = function(mongoose) {
 		}
 	};
 	
-	//Convert POSTed data into user object, returns 
+
 	
-	//Register User (Save to Database)
+	/* 
+		Register User (Save to Database)
+	*/
 	this.register = function(postData, cb) {
 		//JSON response object
 		var resp = new Resp();
@@ -92,8 +99,37 @@ module.exports = function(mongoose) {
 			}
 			userObj[field] = postData[field];
 		}
+		//Add all optional fields if they exist
+		for (var i=0; i<reqFields.length; i++)
+		{
+			var field = reqFields[i];
+			if (typeof postData[field] !== "undefined")
+			{
+				userObj[field] = postData[field];
+			}
+		}
 		
-		//Check for matching passwords
+		//Check for matching passwords and encrypt on success
+		if (typeof postData.cpassword !== "undefined")
+		{
+			if (userObj.password == postData.cpassword)
+			{
+				//On successful match, encrypt password
+				var pwhash = crypto.createHash('md5');
+				pwhash.update(userObj.password);
+				userObj.password = pwhash.digest('hex');
+			}
+			else
+			{
+				resp.error = "Passwords do not match";
+				return resp;
+			}
+		}
+		else
+		{
+			resp.error = "Password must be confirmed";
+			return resp;
+		}
 		
 		//Create user object from model
 		user = new User(userObj);
