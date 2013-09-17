@@ -8,7 +8,7 @@ var assert = require("assert")
 	, mongoose = require('mongoose');
 
 //Connect to MongoDB
-var mongoUrl = "mongodb://localhost/buet73";
+var mongoUrl = "mongodb://localhost/buet73tests";
 mongoose.connect(mongoUrl);
 var db = mongoose.connection;
 

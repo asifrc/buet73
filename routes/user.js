@@ -152,7 +152,9 @@ module.exports = function(mongoose) {
 		var user = new User(userObj);
 		
 		//Save to database
-		//user.save(function(err);
+		user.save(function(err) {
+			console.log("Saved!!"); //Dev
+		});
 		
 		//Return User Object
 		return respond(resp);
