@@ -66,29 +66,30 @@ describe("User Module", function() {
 				for (var i=0; i<reqFields.length; i++)
 				{
 					var field = reqFields[i];
-					it("should return an error when "+field+" is missing", function() {
+					it("should return an error when "+field+" is missing", function(done) {
 						delete bob[field];
-						assert.equal(user.register(bob).error, "Bad request: "+field+" field is missing");
+						user.register(bob, function(resp) {
+							assert.equal(resp.error, "Bad request: "+field+" field is missing");
+							done();
+						});
 					});
 				}
 			});
 			describe("Invalid Password", function() {
-				it("should return an error when confirmation field is missing", function() {
+				it("should return an error when confirmation field is missing", function(done) {
 					delete bob.cpassword;
-					assert.equal(user.register(bob).error, "Password must be confirmed");
+					user.register(bob, function(resp) {
+						assert.equal(resp.error, "Password must be confirmed");
+						done();
+					});
 				});
-				it("should return an error on mismatch", function() {
+				it("should return an error on mismatch", function(done) {
 					bob.cpassword = "mismatch";
-					assert.equal(user.register(bob).error, "Passwords do not match");
+					user.register(bob, function(resp) {
+						assert.equal(resp.error, "Passwords do not match");
+						done();
+					});
 				});
-				it("should return an error when blank", function() {
-					bob.password = "";
-					bob.cpassword = "";
-					assert.equal(user.register(bob).error, "Password cannot be blank");
-				});
-			});
-			
-			describe("Asynch call", function() {
 				it("should return an error when blank", function(done) {
 					bob.password = "";
 					bob.cpassword = "";
@@ -99,8 +100,11 @@ describe("User Module", function() {
 				});
 			});
 			
-			it("should return successful when there are no errors", function() {
-				assert.equal(user.register(bob).error, null);
+			it("should return successful when there are no errors", function(done) {
+				user.register(bob, function(resp) {
+					assert.equal(resp.error, null);
+					done();
+				});
 			});
 			
 		});

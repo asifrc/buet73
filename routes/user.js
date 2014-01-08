@@ -153,11 +153,10 @@ module.exports = function(mongoose) {
 		
 		//Save to database
 		user.save(function(err) {
-			console.log("Saved!!"); //Dev
+			resp.error = err;
+			//Return User Object
+			return respond(resp, cb);
 		});
-		
-		//Return User Object
-		return respond(resp, cb);
 	};
 	
 	
