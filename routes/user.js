@@ -104,7 +104,7 @@ module.exports = function(mongoose) {
 			if (typeof postData[field] === "undefined")
 			{
 				resp.error = "Bad request: "+field+" field is missing";
-				return respond(resp);
+				return respond(resp, cb);
 			}
 			userObj[field] = postData[field];
 		}
@@ -133,19 +133,19 @@ module.exports = function(mongoose) {
 				else
 				{
 					resp.error = "Password cannot be blank";
-					return respond(resp);
+					return respond(resp, cb);
 				}
 			}
 			else
 			{
 				resp.error = "Passwords do not match";
-				return respond(resp);
+				return respond(resp, cb);
 			}
 		}
 		else
 		{
 			resp.error = "Password must be confirmed";
-			return respond(resp);
+			return respond(resp, cb);
 		}
 		
 		//Create user object from model
@@ -157,7 +157,7 @@ module.exports = function(mongoose) {
 		});
 		
 		//Return User Object
-		return respond(resp);
+		return respond(resp, cb);
 	};
 	
 	

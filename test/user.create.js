@@ -93,7 +93,7 @@ describe("User Module", function() {
 					bob.password = "";
 					bob.cpassword = "";
 					user.register(bob, function(resp) {
-						assert.equal(resp, "Password cannot be blank");
+						assert.equal(resp.error, "Password cannot be blank");
 						done();
 					});
 				});
