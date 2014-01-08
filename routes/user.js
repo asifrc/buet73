@@ -111,7 +111,7 @@ module.exports = function(mongoose) {
 		//Add all optional fields if they exist
 		for (var i=0; i<reqFields.length; i++)
 		{
-			var field = reqFields[i];
+			var field = optFields[i];
 			if (typeof postData[field] !== "undefined")
 			{
 				userObj[field] = postData[field];

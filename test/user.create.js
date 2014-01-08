@@ -108,7 +108,5 @@ describe("User Module", function() {
 			});
 			
 		});
-			
-		
 	});
 });
