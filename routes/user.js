@@ -48,14 +48,7 @@ module.exports = function(mongoose) {
 	//JSON response object
 	var Resp = function(obj) {
 		this.error = null;
-		this.data = null;
-		if (typeof obj === "object")
-		{
-			for (o in obj)
-			{
-				this[o] = obj.o;
-			}
-		}
+		this.data = (typeof obj === "object") ? obj : null;
 	};
 	
 	var respond = function(ret, cb) {
@@ -155,7 +148,7 @@ module.exports = function(mongoose) {
 		user.save(function(err) {
 			resp.error = err;
 			//Return User Object
-			resp = new Resp(user);
+			resp = new Resp({ "user": user });
 			return respond(resp, cb);
 		});
 	};

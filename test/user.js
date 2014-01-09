@@ -33,6 +33,7 @@ var optFields = [
 	'stateProv',
 	'zip'
 ];
+var allFields = reqFields.concat(optFields);
 
 
 
@@ -215,13 +216,32 @@ describe("User Module", function() {
 		});
 		
 		describe("Update", function() {
-			var bob;
-			
-			beforeEach(function() {
-				user.register(newBob());
-			});
 			
 			afterEach(emptyDoc);
+			
+			for (var i=0; i<allFields.length; i++)
+			{
+				var field = allFields[i];
+				it("should update "+field+" to 'TestValue'", function(done) {
+					user.register(newBob(), function(resp) {
+						(resp.error == null).should.be.ok;
+						(typeof resp.data.user).should.equal("object");
+						resp.data.user[field] = "TestValue";
+						resp.data.user.save(function(err, uUser, nAffected) {
+							(err == null).should.be.ok;
+							nAffected.should.equal(1);
+							var obj = {};
+							obj[field] = "TestValue";
+							user.model.count(obj, function(err, count) {
+								count.should.equal(1);
+								done();
+							});
+						});
+					});
+				});
+			}
+			
 		});
+		
 	});
 });
