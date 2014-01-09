@@ -45,11 +45,11 @@ describe("MongoDB Connection", function() {
 var newBob = function() {
 	return {
 		fbid: "1234",
-		firstName: "Robert",
-		lastName: "Johnson",
-		displayName: "Bobby Johnson",
+		firstName: "Jan",
+		lastName: "Itor",
+		displayName: "Dr. Jan Itor",
 		department: "Electrical Engineering",
-		email: "rjohnson@asifchoudhury.com",
+		email: "drjanitor@asifchoudhury.com",
 		password: "unhashedpassword",
 		cpassword: "unhashedpassword",
 		phone: "1 123 1234",
@@ -61,19 +61,22 @@ var newBob = function() {
 	};
 };
 
+var emptyDoc = function() {
+	user.model.find(function(err, users) {
+		users.map(function(u) { u.remove(); });
+	});
+};
+
 describe("User Module", function() {
 	describe("User Model", function() {
 		var bob, bobby;
 		
 		beforeEach(function() {
+			emptyDoc();
 			bob = newBob();
 		});
 		
-		afterEach(function() {
-			user.model.find(function(err, users) {
-				users.map(function(u) { u.remove(); });
-			});
-		});
+		afterEach(emptyDoc);
 		
 		it("should create a User object", function() {
 			delete bob.cpassword;
@@ -81,6 +84,7 @@ describe("User Module", function() {
 			bob.firstName.should.equal(bobby.firstName);
 			
 		});
+		
 		describe("Registration", function() {
 			
 			beforeEach(function() {
@@ -208,6 +212,16 @@ describe("User Module", function() {
 				});
 			});
 			
+		});
+		
+		describe("Update", function() {
+			var bob;
+			
+			beforeEach(function() {
+				user.register(newBob());
+			});
+			
+			afterEach(emptyDoc);
 		});
 	});
 });
