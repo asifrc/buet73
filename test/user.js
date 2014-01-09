@@ -1,7 +1,7 @@
 //Bismillah
 
-/*
- * Tests the schema
+/**
+* Tests the User schema
 */
 
 var should = require("should")
@@ -16,15 +16,13 @@ var db = mongoose.connection;
 //Require User Module, passing mongoose
 var user = require("../routes/user")(mongoose);
 
+describe("MongoDB Connection", function() {
+	it("should connect to mongo", function(done) {
+		db.once('open', done);
+	});
+});
 
 describe("User Module", function() {
-	
-	describe("MongoDB Connection", function() {
-		it("should connect to mongo", function(done) {
-			db.once('open', done);
-		});
-	});
-	
 	describe("User Model", function() {
 		var bob, bobby;
 		
@@ -45,6 +43,12 @@ describe("User Module", function() {
 				zip: "57702",
 				country: "United States",
 			};
+		});
+		
+		afterEach(function() {
+			user.model.find(function(err, users) {
+				users.map(function(u) { u.remove(); });
+			});
 		});
 		
 		it("should create a User object", function() {
