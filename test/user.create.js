@@ -4,7 +4,8 @@
  * Tests the schema
 */
 
-var assert = require("assert")
+var should = require("should")
+	, assert = require("assert")
 	, mongoose = require('mongoose');
 
 //Connect to MongoDB
@@ -49,7 +50,7 @@ describe("User Module", function() {
 		it("should create a User object", function() {
 			delete bob.cpassword;
 			bobby = new user.model(bob);
-			assert.equal(bob.firstName, bobby.firstName);
+			bob.firstName.should.equal(bobby.firstName);
 			
 		});
 		describe("Registration", function() {
@@ -69,7 +70,7 @@ describe("User Module", function() {
 					it("should return an error when "+field+" is missing", function(done) {
 						delete bob[field];
 						user.register(bob, function(resp) {
-							assert.equal(resp.error, "Bad request: "+field+" field is missing");
+							resp.error.should.equal("Bad request: "+field+" field is missing");
 							done();
 						});
 					});
@@ -79,14 +80,14 @@ describe("User Module", function() {
 				it("should return an error when confirmation field is missing", function(done) {
 					delete bob.cpassword;
 					user.register(bob, function(resp) {
-						assert.equal(resp.error, "Password must be confirmed");
+						resp.error.should.equal("Password must be confirmed");
 						done();
 					});
 				});
 				it("should return an error on mismatch", function(done) {
 					bob.cpassword = "mismatch";
 					user.register(bob, function(resp) {
-						assert.equal(resp.error, "Passwords do not match");
+						resp.error.should.equal("Passwords do not match");
 						done();
 					});
 				});
@@ -94,7 +95,7 @@ describe("User Module", function() {
 					bob.password = "";
 					bob.cpassword = "";
 					user.register(bob, function(resp) {
-						assert.equal(resp.error, "Password cannot be blank");
+						resp.error.should.equal("Password cannot be blank");
 						done();
 					});
 				});
