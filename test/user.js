@@ -105,10 +105,27 @@ describe("User Module", function() {
 				});
 			});
 			
+			describe("No Calblaback", function() {
+				it("should not throw any errors)", function() {
+					(user.register(bob) || true).should.be.ok;
+				});
+			});
+			
 			it("should return successful when there are no errors", function(done) {
 				user.register(bob, function(resp) {
-					assert.equal(resp.error, null);
+					(resp.error == null).should.be.ok;
 					done();
+				});
+			});
+			
+			it("should save optional fields", function(done) {
+				bob.city = "Rapid City";
+				user.register(bob, function(resp) {
+					(resp.error == null).should.be.ok;
+					user.model.count({ city: "Rapid City" }, function(err, count) {
+						count.should.equal(1);
+						done();
+					});
 				});
 			});
 			
