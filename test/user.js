@@ -222,13 +222,16 @@ describe("User Module", function() {
 			var james = newBob();
 			james.firstName = "James";
 			
-			before(function(done) {
+			before(emptyDoc);
+			
+			beforeEach(function(done) {
 				user.register(bob, function(resp) {
-					user.register(james, function(resp) {
-						done();
-					});
+					user.register(james);
+					done();
 				});
 			});
+			
+			afterEach(emptyDoc);
 			
 			describe("No Criteria", function() {
 			
@@ -236,10 +239,10 @@ describe("User Module", function() {
 					(user.find(bob) || true).should.be.ok;
 				});
 				
-				it("should return an empty array when empty object is passed", function(done) {
+				it("should return all users when empty object is passed", function(done) {
 					user.find({}, function(resp) {
 						(resp.error == null).should.be.ok;
-						resp.data.users.length.should.equal(0);
+						resp.data.users.length.should.equal(2);
 						done();
 					});
 				});

@@ -157,7 +157,13 @@ module.exports = function(mongoose) {
 	* Retrieve Users by Criteria
 	*/
 	this.find = function(criteria, cb) {
+		var resp = new Resp({ users: [] });
 		
+		User.find(criteria, function(err, data) {
+			resp = new Resp({ users: data });
+			resp.error = err;
+			return respond(resp,cb);
+		});
 	};
 	
 	return this;
