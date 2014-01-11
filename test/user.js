@@ -92,9 +92,12 @@ describe("User Module", function() {
 				bob = newBob();
 			});
 			
-			it("should return successful when there are no errors", function(done) {
+			it("should return the user when there are no errors", function(done) {
 				user.register(bob, function(resp) {
 					(resp.error == null).should.be.ok;
+					(typeof resp.data.users.length).should.equal("number");
+					resp.data.users.length.should.equal(1);
+					resp.data.users[0].firstName.should.equal(bob.firstName);
 					done();
 				});
 			});
@@ -225,9 +228,10 @@ describe("User Module", function() {
 				it("should update "+field+" to 'TestValue'", function(done) {
 					user.register(newBob(), function(resp) {
 						(resp.error == null).should.be.ok;
-						(typeof resp.data.user).should.equal("object");
-						resp.data.user[field] = "TestValue";
-						resp.data.user.save(function(err, uUser, nAffected) {
+						(typeof resp.data.users).should.equal("object");
+						resp.data.users.length.should.equal(1);
+						resp.data.users[0][field] = "TestValue";
+						resp.data.users[0].save(function(err, uUser, nAffected) {
 							(err == null).should.be.ok;
 							nAffected.should.equal(1);
 							var obj = {};

@@ -148,7 +148,7 @@ module.exports = function(mongoose) {
 		user.save(function(err) {
 			resp.error = err;
 			//Return User Object
-			resp = new Resp({ "user": user });
+			resp = new Resp({ "users": [ user ] });
 			return respond(resp, cb);
 		});
 	};
