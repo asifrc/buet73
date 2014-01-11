@@ -1,14 +1,14 @@
 //Bismillah
 
-/*
- * USER MODULE
- * ----------
- * Contains User schema for Mongoose,
- * CRUD interface to mongoDB,
- * and router interface to Express
- *
- * Instantiated with a constructor,
- *  - takes mongoose as parameter
+/**
+* USER MODULE
+* ----------
+* Contains User schema for Mongoose,
+* CRUD interface to mongoDB,
+* and router interface to Express
+*
+* Instantiated with a constructor,
+*  - takes mongoose as parameter
 */
 
 var crypto = require('crypto');
@@ -16,8 +16,8 @@ var crypto = require('crypto');
 //Export Constructor
 module.exports = function(mongoose) {
 
-	/*
-		User Schema and Model
+	/**
+	* User Schema and Model
 	*/
 	
 	//User Schema
@@ -62,8 +62,8 @@ module.exports = function(mongoose) {
 	
 
 	
-	/* 
-		Register User (Save to Database)
+	/**
+	* Register User (Save to Database)
 	*/
 	this.register = function(postData, cb) {
 		//JSON response object
@@ -153,7 +153,12 @@ module.exports = function(mongoose) {
 		});
 	};
 	
-	
+	/**
+	* Retrieve Users by Criteria
+	*/
+	this.find = function(criteria, cb) {
+		
+	};
 	
 	return this;
 };

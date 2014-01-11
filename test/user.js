@@ -46,11 +46,11 @@ describe("MongoDB Connection", function() {
 var newBob = function() {
 	return {
 		fbid: "1234",
-		firstName: "Jan",
-		lastName: "Itor",
-		displayName: "Dr. Jan Itor",
+		firstName: "Bob",
+		lastName: "Anderson",
+		displayName: "Bobby Anderson",
 		department: "Electrical Engineering",
-		email: "drjanitor@asifchoudhury.com",
+		email: "banderson@asifchoudhury.com",
 		password: "unhashedpassword",
 		cpassword: "unhashedpassword",
 		phone: "1 123 1234",
@@ -213,6 +213,80 @@ describe("User Module", function() {
 			describe("No Callback", function() {
 				it("should not throw any errors", function() {
 					(user.register(bob) || true).should.be.ok;
+				});
+			});
+			
+		});
+		
+		describe("Find", function() {
+			var james = newBob();
+			james.firstName = "James";
+			
+			before(function(done) {
+				user.register(bob, function(resp) {
+					user.register(james, function(resp) {
+						done();
+					});
+				});
+			});
+			
+			describe("No Criteria", function() {
+			
+				it("should not throw any errors when no parameters are passed", function() {
+					(user.find(bob) || true).should.be.ok;
+				});
+				
+				it("should return an empty array when empty object is passed", function(done) {
+					user.find({}, function(resp) {
+						(resp.error == null).should.be.ok;
+						resp.data.users.length.should.equal(0);
+						done();
+					});
+				});
+			});
+			
+			describe("Single Criterion", function() {
+				
+				it("should return one user when sent one criterion matching one record", function(done) {
+					user.find({ firstName: bob.firstName}, function(resp) {
+						(resp.error == null).should.be.ok;
+						resp.data.users.length.should.equal(1);
+						resp.data.users[0].firstName.should.equal(bob.firstName);
+						done();
+					});
+				});
+				
+				it("should two multiple users with one criterion matching two records", function(done) {
+					user.find({ country: bob.country}, function(resp) {
+						(resp.error == null).should.be.ok;
+						resp.data.users.length.should.equal(2);
+						resp.data.users[0].firstName.should.equal(bob.firstName);
+						resp.data.users[1].firstName.should.equal(james.firstName);
+						done();
+					});
+				});
+			});
+			
+			describe("Multiple Criteria", function() {
+			
+				it("should return one user when sent criteria matching one record", function(done) {
+					user.find({ firstName: bob.firstName, lastName: bob.lastName}, function(resp) {
+						(resp.error == null).should.be.ok;
+						resp.data.users.length.should.equal(1);
+						resp.data.users[0].firstName.should.equal(bob.firstName);
+						resp.data.users[0].lastName.should.equal(bob.lastName);
+						done();
+					});
+				});
+				
+				it("should return two users with criteria matching two records", function(done) {
+					user.find({ country: bob.country, zip: james.zip}, function(resp) {
+						(resp.error == null).should.be.ok;
+						resp.data.users.length.should.equal(2);
+						resp.data.users[0].firstName.should.equal(bob.firstName);
+						resp.data.users[1].firstName.should.equal(james.firstName);
+						done();
+					});
 				});
 			});
 			
