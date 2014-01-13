@@ -171,7 +171,19 @@ module.exports = function(mongoose) {
 	*/
 	this.update = function(criteria, cb) {
 		var resp = new Resp({users: []});
-		return respond(resp, cb);
+		if (typeof criteria.filter !== "object" || typeof criteria.values !== "object")
+		{
+			resp.error = "Invalid format - filter and values properties are invalid";
+			return respond(resp, cb);
+		}
+		User.update(criteria.filter, criteria.values, function(err, nAff, rawResp) {
+			if (err)
+			{
+				resp.error = err;
+				return respond(resp, cb);
+			}
+			return respond(resp, cb);
+		});
 	};
 	
 	return this;

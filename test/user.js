@@ -319,7 +319,7 @@ describe("User Module", function() {
 				it("should return an error if filter & values properties are missing", function(done) {
 					var obj = {};
 					user.update(obj, function(resp) {
-						resp.error.should.equal("Invalid format - missing filter and values parameters");
+						resp.error.should.equal("Invalid format - filter and values properties are invalid");
 						done();
 					});
 				});
@@ -327,7 +327,7 @@ describe("User Module", function() {
 				it("should return an error if filter property is missing", function(done) {
 					var obj = {};
 					user.update(obj, function(resp) {
-						resp.error.should.equal("Invalid format - missing filter and values parameters");
+						resp.error.should.equal("Invalid format - filter and values properties are invalid");
 						done();
 					});
 				});
@@ -335,7 +335,7 @@ describe("User Module", function() {
 				it("should return an error if values property is missing", function(done) {
 					var obj = {};
 					user.update(obj, function(resp) {
-						resp.error.should.equal("Invalid format - missing filter and values parameters");
+						resp.error.should.equal("Invalid format - filter and values properties are invalid");
 						done();
 					});
 				});
