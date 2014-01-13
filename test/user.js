@@ -43,8 +43,8 @@ describe("MongoDB Connection", function() {
 	});
 });
 
-var newBob = function() {
-	return {
+var newBob = function(reg) {
+	var bob = {
 		fbid: "1234",
 		firstName: "Bob",
 		lastName: "Anderson",
@@ -52,7 +52,6 @@ var newBob = function() {
 		department: "Electrical Engineering",
 		email: "banderson@asifchoudhury.com",
 		password: "unhashedpassword",
-		cpassword: "unhashedpassword",
 		phone: "1 123 1234",
 		address: "2828 82nd St",
 		city: "Rapid City",
@@ -60,6 +59,12 @@ var newBob = function() {
 		zip: "57702",
 		country: "United States",
 	};
+	reg = (typeof reg === "undefined") ? false : reg;
+	if (reg)
+	{
+		bob.cpassword = bob.password;
+	}
+	return bob;
 };
 
 var emptyDoc = function() {
@@ -89,7 +94,7 @@ describe("User Module", function() {
 		describe("Registration", function() {
 			
 			beforeEach(function() {
-				bob = newBob();
+				bob = newBob(true);
 			});
 			
 			it("should return the user when there are no errors", function(done) {
@@ -225,8 +230,12 @@ describe("User Module", function() {
 			before(emptyDoc);
 			
 			beforeEach(function(done) {
+				bob.cpassword = bob.password;
+				james.cpassword = james.password;
 				user.register(bob, function(resp) {
 					user.register(james);
+					delete bob.cpassword;
+					delete james.cpassword;
 					done();
 				});
 			});
@@ -291,52 +300,66 @@ describe("User Module", function() {
 						done();
 					});
 				});
+				
+				it("should return one user with a user passed as the criteria", function(done) {
+					user.find(bob, function(resp) {
+						(resp.error == null).should.be.ok;
+						resp.data.users.length.should.equal(1);
+						resp.data.users[0].firstName.should.equal(bob.firstName);
+						done();
+					});
+				});
 			});
 			
 		});
 		
 		describe("Update", function() {
 			
-			var james = newBob()
-				, john = newBob();
-			james.firstName = "James";
-			john.firstName = "John";
-			john.lastName = "Doe";
-			var doc = [bob,james, john];
+			var john = newBob();
 			
 			before(emptyDoc);
 			
 			beforeEach(function(done) {
+				john = newBob();
+				john.firstName = "John";
+				john.lastName = "Doe";
+				john.cpassword = john.password;
 				user.register(bob, function(resp) {
-					user.register(james);
+					user.register(john);
+					delete john.cpassword;
 					done();
 				});
 			});
 			
 			afterEach(emptyDoc);
 			
-			describe("Parameter Formatting", function() {
-				it("should return an error if filter & values properties are missing", function(done) {
-					var obj = {};
-					user.update(obj, function(resp) {
-						resp.error.should.equal("Invalid format - filter and values properties are invalid");
-						done();
-					});
+			it("should return an error if userID property is missing", function(done) {
+				user.update({}, function(resp) {
+					resp.error.should.equal("Invalid format - userID missing");
+					done();
 				});
-				
-				it("should return an error if filter property is missing", function(done) {
-					var obj = {};
-					user.update(obj, function(resp) {
-						resp.error.should.equal("Invalid format - filter and values properties are invalid");
-						done();
-					});
+			});
+			
+			it("should return without an error if userID property is present", function(done) {
+				user.update({ _id: "1234" }, function(resp) {
+					(resp.error == null).should.be.ok;
+					done();
 				});
-				
-				it("should return an error if values property is missing", function(done) {
-					var obj = {};
-					user.update(obj, function(resp) {
-						resp.error.should.equal("Invalid format - filter and values properties are invalid");
-						done();
+			});
+			
+			it("should update the database with the user data passed", function(done) {
+				user.find({firstName: john.firstName}, function(resp) {
+					john._id = resp.data.users[0]._id;
+					john.zip = "60601";
+					john.city = "Chicago";
+					john.stateProv = "Illinois";
+					
+					user.update(john, function(resp) {
+						(resp.error == null).should.be.ok;
+						resp.data.users.should.equal(john);
+						user.find({firstName: john.firstName}, function(resp) {
+							resp.data.users.should.equal(john);
+						});
 					});
 				});
 			});
