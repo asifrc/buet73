@@ -166,5 +166,13 @@ module.exports = function(mongoose) {
 		});
 	};
 	
+	/**
+	* Update Users by Criteria
+	*/
+	this.update = function(criteria, cb) {
+		var resp = new Resp({users: []});
+		return respond(resp, cb);
+	};
+	
 	return this;
 };

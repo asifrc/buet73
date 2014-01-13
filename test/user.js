@@ -297,7 +297,242 @@ describe("User Module", function() {
 		
 		describe("Update", function() {
 			
+			var james = newBob()
+				, john = newBob();
+			james.firstName = "James";
+			john.firstName = "John";
+			john.lastName = "Doe";
+			var doc = [bob,james, john];
+			
+			before(emptyDoc);
+			
+			beforeEach(function(done) {
+				user.register(bob, function(resp) {
+					user.register(james);
+					done();
+				});
+			});
+			
 			afterEach(emptyDoc);
+			
+			describe("Parameter Formatting", function() {
+				it("should return an error if filter & values properties are missing", function(done) {
+					var obj = {};
+					user.update(obj, function(resp) {
+						resp.error.should.equal("Invalid format - missing filter and values parameters");
+						done();
+					});
+				});
+				
+				it("should return an error if filter property is missing", function(done) {
+					var obj = {};
+					user.update(obj, function(resp) {
+						resp.error.should.equal("Invalid format - missing filter and values parameters");
+						done();
+					});
+				});
+				
+				it("should return an error if values property is missing", function(done) {
+					var obj = {};
+					user.update(obj, function(resp) {
+						resp.error.should.equal("Invalid format - missing filter and values parameters");
+						done();
+					});
+				});
+			});
+
+			it("should update no users with an empty filter and empty values ", function(done) {
+				var obj = { filter: {}, values: {} };
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					resp.data.users.length.should.equal(0);
+					done();
+				});
+			});
+			
+			it("should update all users with an empty filter and 3 values", function(done) {
+				var obj = { filter: {}, values: { zip: "60601", city: "Chicago", stateProv: "Illinois" } };
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					resp.data.users.length.should.equal(doc.length);
+					resp.data.users.map(function(x) {
+						var match = true;
+						for (field in obj.values)
+						{
+							match = match && (x[field]==obj.values[field]);
+						}
+						return match;
+					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
+					done();
+				});
+			});
+			
+			it("should update no users with an (0)match filter and 3 values", function(done) {
+				var obj = {
+					filter: { firstName: "nobody"},
+					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
+				};
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					resp.data.users.length.should.equal(0);
+					done();
+				});
+			});
+			
+			it("should update no users with two (0)match filters and 3 values", function(done) {
+				var obj = {
+					filter: { firstName: "nobody", lastName: "nobobdy" },
+					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
+				};
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					resp.data.users.length.should.equal(0);
+					done();
+				});
+			});
+			
+			it("should update no users with a (0)match + (1)match filter and 3 values", function(done) {
+				var obj = {
+					filter: { firstName: bob.firstName, lastName: "nobody" },
+					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
+				};
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					resp.data.users.length.should.equal(0);
+					done();
+				});
+			});
+			
+			it("should update no users with two (1)match/(0)union filters and 3 values", function(done) {
+				var obj = {
+					filter: { firstName: bob.firstName, lastName: john.lastName },
+					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
+				};
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					resp.data.users.length.should.equal(0);
+					done();
+				});
+			});
+			
+			it("should update one user with one (1)match filter and 3 values", function(done) {
+				var obj = {
+					filter: { firstName: bob.firstName },
+					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
+				};
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					resp.data.users.length.should.equal(1);
+					resp.data.users.map(function(x) {
+						var match = true;
+						for (field in obj.values)
+						{
+							match = match && (x[field]==obj.values[field]);
+						}
+						return match;
+					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
+					done();
+				});
+			});
+			
+			it("should update two users with one double-match filter and 3 values", function(done) {
+				var obj = {
+					filter: { lastName: bob.lastName },
+					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
+				};
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					resp.data.users.length.should.equal(2);
+					resp.data.users.map(function(x) {
+						var match = true;
+						for (field in obj.values)
+						{
+							match = match && (x[field]==obj.values[field]);
+						}
+						return match;
+					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
+					done();
+				});
+			});
+			
+			it("should update two users with two double-match filters and 3 values", function(done) {
+				var obj = {
+					filter: { lastName: bob.lastName, country: james.country },
+					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
+				};
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					resp.data.users.length.should.equal(2);
+					resp.data.users.map(function(x) {
+						var match = true;
+						for (field in obj.values)
+						{
+							match = match && (x[field]==obj.values[field]);
+						}
+						return match;
+					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
+					done();
+				});
+			});
+			
+			it("should update all users with one universal-match filter and 3 values", function(done) {
+				var obj = {
+					filter: { country: john.country },
+					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
+				};
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					resp.data.users.length.should.equal(doc.length);
+					resp.data.users.map(function(x) {
+						var match = true;
+						for (field in obj.values)
+						{
+							match = match && (x[field]==obj.values[field]);
+						}
+						return match;
+					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
+					done();
+				});
+			});
+			
+			it("should update all users with two universal-match filters and 3 values", function(done) {
+				var obj = {
+					filter: { stateProv: james.stateProv, country: john.country },
+					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
+				};
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					resp.data.users.length.should.equal(doc.length);
+					resp.data.users.map(function(x) {
+						var match = true;
+						for (field in obj.values)
+						{
+							match = match && (x[field]==obj.values[field]);
+						}
+						return match;
+					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
+					done();
+				});
+			});
+			
+			
+			/*
+			it("should update everything when no criteria is provided", function(done) {
+				var obj = { filter: {}, values: { country: "Bangladesh" } };
+				user.update(obj, function(resp) {
+					(resp.error == null).should.be.ok;
+					var match = [bob,james];
+					var match = resp.data.users.map(function(record,i) {
+							var flds = [];
+							for (var field in record)
+							{
+								flds.push(field);
+							}
+							return flds.reduce(function(x,y) { return (x && (record[y]==match[i][y])); });
+						}).reduce(function(x,y) { return (x && y); }).should.be.ok;
+					done();
+				});
+			});
 			
 			for (var i=0; i<allFields.length; i++)
 			{
@@ -321,6 +556,7 @@ describe("User Module", function() {
 					});
 				});
 			}
+			*/
 			
 		});
 		
