@@ -159,6 +159,13 @@ module.exports = function(mongoose) {
 	this.find = function(criteria, cb) {
 		var resp = new Resp({ users: [] });
 		
+		if (typeof criteria.password === "string")
+		{
+			var pwhash = crypto.createHash('md5');
+			pwhash.update(criteria.password);
+			criteria.password = pwhash.digest('hex');
+		}
+		
 		User.find(criteria, function(err, data) {
 			resp = new Resp({ users: data });
 			resp.error = err;

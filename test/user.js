@@ -295,6 +295,7 @@ describe("User Module", function() {
 					user.find({ country: bob.country, zip: james.zip}, function(resp) {
 						(resp.error == null).should.be.ok;
 						resp.data.users.length.should.equal(2);
+						console.log(resp.data.users[0]);//debug
 						resp.data.users[0].firstName.should.equal(bob.firstName);
 						resp.data.users[1].firstName.should.equal(james.firstName);
 						done();
@@ -302,6 +303,7 @@ describe("User Module", function() {
 				});
 				
 				it("should return one user with a user passed as the criteria", function(done) {
+					console.log(bob); //debug
 					user.find(bob, function(resp) {
 						(resp.error == null).should.be.ok;
 						resp.data.users.length.should.equal(1);
