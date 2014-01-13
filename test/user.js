@@ -295,7 +295,6 @@ describe("User Module", function() {
 					user.find({ country: bob.country, zip: james.zip}, function(resp) {
 						(resp.error == null).should.be.ok;
 						resp.data.users.length.should.equal(2);
-						console.log(resp.data.users[0]);//debug
 						resp.data.users[0].firstName.should.equal(bob.firstName);
 						resp.data.users[1].firstName.should.equal(james.firstName);
 						done();
@@ -303,7 +302,6 @@ describe("User Module", function() {
 				});
 				
 				it("should return one user with a user passed as the criteria", function(done) {
-					console.log(bob); //debug
 					user.find(bob, function(resp) {
 						(resp.error == null).should.be.ok;
 						resp.data.users.length.should.equal(1);
@@ -327,261 +325,66 @@ describe("User Module", function() {
 				john.lastName = "Doe";
 				john.cpassword = john.password;
 				user.register(bob, function(resp) {
-					user.register(john);
-					delete john.cpassword;
-					done();
+					user.register(john, function(resp2) {
+						delete john.cpassword;
+						done();
+					});
 				});
 			});
 			
-			afterEach(emptyDoc);
+			//afterEach(emptyDoc);
 			
 			it("should return an error if userID property is missing", function(done) {
 				user.update({}, function(resp) {
-					resp.error.should.equal("Invalid format - userID missing");
+					resp.error.should.equal("Invalid format - userID is invalid");
 					done();
 				});
 			});
 			
-			it("should return without an error if userID property is present", function(done) {
-				user.update({ _id: "1234" }, function(resp) {
-					(resp.error == null).should.be.ok;
+			it("should return an error if userID is invalid", function(done) {
+				user.update({ id: "1234" }, function(resp) {
+					resp.error.name.should.equal("CastError");
+					done();
+				});
+			});
+			
+			it("should return an error if userID not found", function(done) {
+				user.update({ id: "52d47b2c41534264425c6e16" }, function(resp) {
+					resp.error.should.equal("The user id return an invalid number of users(0)");
 					done();
 				});
 			});
 			
 			it("should update the database with the user data passed", function(done) {
-				user.find({firstName: john.firstName}, function(resp) {
-					john._id = resp.data.users[0]._id;
+				user.find(john, function(findResp) {
+					john.id = findResp.data.users[0].id;
 					john.zip = "60601";
 					john.city = "Chicago";
 					john.stateProv = "Illinois";
 					
-					user.update(john, function(resp) {
-						(resp.error == null).should.be.ok;
-						resp.data.users.should.equal(john);
-						user.find({firstName: john.firstName}, function(resp) {
-							resp.data.users.should.equal(john);
-						});
-					});
-				});
-			});
-
-			it("should update no users with an empty filter and empty values ", function(done) {
-				var obj = { filter: {}, values: {} };
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					resp.data.users.length.should.equal(0);
-					done();
-				});
-			});
-			
-			it("should update all users with an empty filter and 3 values", function(done) {
-				var obj = { filter: {}, values: { zip: "60601", city: "Chicago", stateProv: "Illinois" } };
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					resp.data.users.length.should.equal(doc.length);
-					resp.data.users.map(function(x) {
+					user.update(john, function(updateResp) {
+						(updateResp.error == null).should.be.ok;
+						
 						var match = true;
-						for (field in obj.values)
+						for (var field in john)
 						{
-							match = match && (x[field]==obj.values[field]);
+							match = match && (updateResp.data.users[0][field]==john[field]);
 						}
-						return match;
-					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
-					done();
-				});
-			});
-			
-			it("should update no users with an (0)match filter and 3 values", function(done) {
-				var obj = {
-					filter: { firstName: "nobody"},
-					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
-				};
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					resp.data.users.length.should.equal(0);
-					done();
-				});
-			});
-			
-			it("should update no users with two (0)match filters and 3 values", function(done) {
-				var obj = {
-					filter: { firstName: "nobody", lastName: "nobobdy" },
-					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
-				};
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					resp.data.users.length.should.equal(0);
-					done();
-				});
-			});
-			
-			it("should update no users with a (0)match + (1)match filter and 3 values", function(done) {
-				var obj = {
-					filter: { firstName: bob.firstName, lastName: "nobody" },
-					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
-				};
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					resp.data.users.length.should.equal(0);
-					done();
-				});
-			});
-			
-			it("should update no users with two (1)match/(0)union filters and 3 values", function(done) {
-				var obj = {
-					filter: { firstName: bob.firstName, lastName: john.lastName },
-					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
-				};
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					resp.data.users.length.should.equal(0);
-					done();
-				});
-			});
-			
-			it("should update one user with one (1)match filter and 3 values", function(done) {
-				var obj = {
-					filter: { firstName: bob.firstName },
-					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
-				};
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					resp.data.users.length.should.equal(1);
-					resp.data.users.map(function(x) {
-						var match = true;
-						for (field in obj.values)
-						{
-							match = match && (x[field]==obj.values[field]);
-						}
-						return match;
-					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
-					done();
-				});
-			});
-			
-			it("should update two users with one double-match filter and 3 values", function(done) {
-				var obj = {
-					filter: { lastName: bob.lastName },
-					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
-				};
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					resp.data.users.length.should.equal(2);
-					resp.data.users.map(function(x) {
-						var match = true;
-						for (field in obj.values)
-						{
-							match = match && (x[field]==obj.values[field]);
-						}
-						return match;
-					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
-					done();
-				});
-			});
-			
-			it("should update two users with two double-match filters and 3 values", function(done) {
-				var obj = {
-					filter: { lastName: bob.lastName, country: james.country },
-					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
-				};
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					resp.data.users.length.should.equal(2);
-					resp.data.users.map(function(x) {
-						var match = true;
-						for (field in obj.values)
-						{
-							match = match && (x[field]==obj.values[field]);
-						}
-						return match;
-					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
-					done();
-				});
-			});
-			
-			it("should update all users with one universal-match filter and 3 values", function(done) {
-				var obj = {
-					filter: { country: john.country },
-					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
-				};
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					resp.data.users.length.should.equal(doc.length);
-					resp.data.users.map(function(x) {
-						var match = true;
-						for (field in obj.values)
-						{
-							match = match && (x[field]==obj.values[field]);
-						}
-						return match;
-					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
-					done();
-				});
-			});
-			
-			it("should update all users with two universal-match filters and 3 values", function(done) {
-				var obj = {
-					filter: { stateProv: james.stateProv, country: john.country },
-					values: { zip: "60601", city: "Chicago", stateProv: "Illinois" }
-				};
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					resp.data.users.length.should.equal(doc.length);
-					resp.data.users.map(function(x) {
-						var match = true;
-						for (field in obj.values)
-						{
-							match = match && (x[field]==obj.values[field]);
-						}
-						return match;
-					}).reduce(function(x,y) { return x && y; },true).should.be.ok;
-					done();
-				});
-			});
-			
-			
-			/*
-			it("should update everything when no criteria is provided", function(done) {
-				var obj = { filter: {}, values: { country: "Bangladesh" } };
-				user.update(obj, function(resp) {
-					(resp.error == null).should.be.ok;
-					var match = [bob,james];
-					var match = resp.data.users.map(function(record,i) {
-							var flds = [];
-							for (var field in record)
+						match.should.be.ok;
+						
+						user.find({_id: john.id}, function(resp) {
+							resp.data.users.length.should.equal(1);
+							match = true;
+							for (var field in john)
 							{
-								flds.push(field);
+								match = match && (resp.data.users[0][field]==john[field]);
 							}
-							return flds.reduce(function(x,y) { return (x && (record[y]==match[i][y])); });
-						}).reduce(function(x,y) { return (x && y); }).should.be.ok;
-					done();
-				});
-			});
-			
-			for (var i=0; i<allFields.length; i++)
-			{
-				var field = allFields[i];
-				it("should update "+field+" to 'TestValue'", function(done) {
-					user.register(newBob(), function(resp) {
-						(resp.error == null).should.be.ok;
-						(typeof resp.data.users).should.equal("object");
-						resp.data.users.length.should.equal(1);
-						resp.data.users[0][field] = "TestValue";
-						resp.data.users[0].save(function(err, uUser, nAffected) {
-							(err == null).should.be.ok;
-							nAffected.should.equal(1);
-							var obj = {};
-							obj[field] = "TestValue";
-							user.model.count(obj, function(err, count) {
-								count.should.equal(1);
-								done();
-							});
+							match.should.be.ok;
+							done();
 						});
 					});
 				});
-			}
-			*/
+			});
 			
 		});
 		

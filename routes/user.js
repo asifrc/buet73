@@ -156,7 +156,7 @@ module.exports = function(mongoose) {
 	/**
 	* Retrieve Users by Criteria
 	*/
-	this.find = function(criteria, cb) {
+	var findUser = function(criteria, cb) {
 		var resp = new Resp({ users: [] });
 		
 		if (typeof criteria.password === "string")
@@ -172,24 +172,38 @@ module.exports = function(mongoose) {
 			return respond(resp,cb);
 		});
 	};
+	this.find = findUser;
 	
 	/**
 	* Update Users by Criteria
 	*/
 	this.update = function(criteria, cb) {
-		var resp = new Resp({users: []});
-		if (typeof criteria.filter !== "object" || typeof criteria.values !== "object")
+		var resp = new Resp();
+		if (typeof criteria.id !== "string")
 		{
-			resp.error = "Invalid format - filter and values properties are invalid";
+			resp.error = "Invalid format - userID is invalid";
 			return respond(resp, cb);
 		}
-		User.update(criteria.filter, criteria.values, function(err, nAff, rawResp) {
-			if (err)
+		findUser({_id: criteria.id}, function(response) {
+			if (response.error)
 			{
-				resp.error = err;
+				return respond(response, cb)
+			}
+			if (response.data.users.length != 1)
+			{
+				resp.error = "The user id return an invalid number of users("+response.data.users.length+")";
 				return respond(resp, cb);
 			}
-			return respond(resp, cb);
+			user = response.data.users[0];
+			for (var field in criteria)
+			{
+				user[field] = criteria[field];
+			}
+			user.save(function(err, usr) {
+				resp = new Resp({users: [usr] });
+				resp.error = err;
+				return respond(resp, cb);
+			});
 		});
 	};
 	
