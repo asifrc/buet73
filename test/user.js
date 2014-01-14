@@ -388,5 +388,75 @@ describe("User Module", function() {
 			
 		});
 		
+		describe("Remove", function() {
+			
+			var john = newBob();
+			
+			before(emptyDoc);
+			
+			beforeEach(function(done) {
+				john = newBob();
+				john.firstName = "John";
+				john.lastName = "Doe";
+				john.cpassword = john.password;
+				user.register(bob, function(resp) {
+					user.register(john, function(resp2) {
+						delete john.cpassword;
+						done();
+					});
+				});
+			});
+			
+			it("should return an error if userID property is missing", function(done) {
+				user.remove({}, function(resp) {
+					resp.error.should.equal("Invalid format - userID is invalid");
+					done();
+				});
+			});
+			
+			it("should return an error if userID is invalid", function(done) {
+				user.remove({ id: "1234" }, function(resp) {
+					resp.error.name.should.equal("CastError");
+					done();
+				});
+			});
+			
+			it("should return an error if userID not found", function(done) {
+				user.remove({ id: "52d47b2c41534264425c6e16" }, function(resp) {
+					resp.error.should.equal("The user id return an invalid number of users(0)");
+					done();
+				});
+			});
+			
+			it("should remove the user when valid userID is provided", function(done) {
+				user.find(john, function(findResp) {
+					john.id = findResp.data.users[0].id;
+					
+					user.remove({_id: john.id}, function(resp) {
+						(resp.error == null).should.be.ok;
+						user.model.count({}, function(err, count) {
+							count.should.equal(0);
+							done();
+						});
+					});
+				});
+			});
+			
+			it("should remove the user when a user is provided", function(done) {
+				user.find(john, function(findResp) {
+					john.id = findResp.data.users[0].id;
+					
+					user.remove(john, function(resp) {
+						(resp.error == null).should.be.ok;
+						user.model.count({}, function(err, count) {
+							count.should.equal(0);
+							done();
+						});
+					});
+				});
+			});
+			
+		});
+		
 	});
 });
