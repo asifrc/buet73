@@ -175,24 +175,38 @@ module.exports = function(mongoose) {
 	this.find = findUser;
 	
 	/**
-	* Update Users by Criteria
+	* Find a Single User
 	*/
-	this.update = function(criteria, cb) {
+	var findOne = function(criteria, cb, handler) {
 		var resp = new Resp();
 		if (typeof criteria.id !== "string")
 		{
 			resp.error = "Invalid format - userID is invalid";
-			return respond(resp, cb);
+			return handler(resp);
 		}
 		findUser({_id: criteria.id}, function(response) {
 			if (response.error)
 			{
-				return respond(response, cb)
+				return handler(response);
 			}
 			if (response.data.users.length != 1)
 			{
 				resp.error = "The user id return an invalid number of users("+response.data.users.length+")";
-				return respond(resp, cb);
+				return handler(resp);
+			}
+			handler(response);
+		});
+	};
+	
+	/**
+	* Update User by ID
+	*/
+	this.update = function(criteria, cb) {
+		var resp = new Resp();
+		findOne(criteria, cb, function(response) {
+			if (response.error)
+			{
+				return respond(response, cb);
 			}
 			user = response.data.users[0];
 			for (var field in criteria)
@@ -206,6 +220,11 @@ module.exports = function(mongoose) {
 			});
 		});
 	};
+	
+	/**
+	* Remove User by ID
+	*/
+	//this.remove = 
 	
 	return this;
 };
