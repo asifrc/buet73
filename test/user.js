@@ -342,14 +342,14 @@ describe("User Module", function() {
 			});
 			
 			it("should return an error if userID is invalid", function(done) {
-				user.update({ id: "1234" }, function(resp) {
+				user.update({ _id: "1234" }, function(resp) {
 					resp.error.name.should.equal("CastError");
 					done();
 				});
 			});
 			
 			it("should return an error if userID not found", function(done) {
-				user.update({ id: "52d47b2c41534264425c6e16" }, function(resp) {
+				user.update({ _id: "52d47b2c41534264425c6e16" }, function(resp) {
 					resp.error.should.equal("The user id return an invalid number of users(0)");
 					done();
 				});
@@ -357,7 +357,7 @@ describe("User Module", function() {
 			
 			it("should update the database with the user data passed", function(done) {
 				user.find(john, function(findResp) {
-					john.id = findResp.data.users[0].id;
+					john._id = findResp.data.users[0].id;
 					john.zip = "60601";
 					john.city = "Chicago";
 					john.stateProv = "Illinois";
@@ -372,7 +372,7 @@ describe("User Module", function() {
 						}
 						match.should.be.ok;
 						
-						user.find({_id: john.id}, function(resp) {
+						user.find({_id: john._id}, function(resp) {
 							resp.data.users.length.should.equal(1);
 							match = true;
 							for (var field in john)
@@ -415,14 +415,14 @@ describe("User Module", function() {
 			});
 			
 			it("should return an error if userID is invalid", function(done) {
-				user.remove({ id: "1234" }, function(resp) {
+				user.remove({ _id: "1234" }, function(resp) {
 					resp.error.name.should.equal("CastError");
 					done();
 				});
 			});
 			
 			it("should return an error if userID not found", function(done) {
-				user.remove({ id: "52d47b2c41534264425c6e16" }, function(resp) {
+				user.remove({ _id: "52d47b2c41534264425c6e16" }, function(resp) {
 					resp.error.should.equal("The user id return an invalid number of users(0)");
 					done();
 				});
@@ -430,9 +430,9 @@ describe("User Module", function() {
 			
 			it("should remove the user when valid userID is provided", function(done) {
 				user.find(john, function(findResp) {
-					john.id = findResp.data.users[0].id;
+					john._id = findResp.data.users[0].id;
 					
-					user.remove({_id: john.id}, function(resp) {
+					user.remove({_id: john._id}, function(resp) {
 						(resp.error == null).should.be.ok;
 						user.model.count({}, function(err, count) {
 							count.should.equal(0);
@@ -444,7 +444,7 @@ describe("User Module", function() {
 			
 			it("should remove the user when a user is provided", function(done) {
 				user.find(john, function(findResp) {
-					john.id = findResp.data.users[0].id;
+					john._id = findResp.data.users[0].id;
 					
 					user.remove(john, function(resp) {
 						(resp.error == null).should.be.ok;
