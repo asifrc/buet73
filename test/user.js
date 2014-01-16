@@ -448,6 +448,10 @@ describe("User Module", function() {
 					
 					user.remove(john, function(resp) {
 						(resp.error == null).should.be.ok;
+						if (resp.error)
+						{
+							console.log(resp.error);
+						}
 						user.model.count({}, function(err, count) {
 							count.should.equal(0);
 							done();
