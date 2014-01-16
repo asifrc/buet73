@@ -1,1 +1,1 @@
-language: node_jsnode_js: - "0.10"services: - mongodb
+language: node_jsnode_js: - "0.10"services: - mongodb - neo4jdeploy: provider: heroku api_key: "c3d25faf-e17f-4b3d-b297-3a6f164d707a"
