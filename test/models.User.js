@@ -1,0 +1,1 @@
+//Bismillah/*** Tests for models/User.js*/var should = require("should")	, assert = require("assert");describe("User Model", function() {});
