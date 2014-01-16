@@ -4,21 +4,24 @@
   "description": "http://www.buet73.com",
   "repository": {
     "type": "git",
-    "url": "https://bitbucket.org/asifrc/buet73.git"
+    "url": "https://github.com/asifrc/buet73"
   },
   "private": true,
   "scripts": {
     "start": "node app.js",
-	"test": "istanbul cover node_modules/mocha/bin/_mocha -- -u exports -R spec"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "dependencies": {
     "express": "3.3.4",
     "mongoose": "*",
+    "neo4j": "*",
     "grunt": "~0.4.2",
     "grunt-simple-mocha": "~0.4.0",
     "mocha": "~1.16.2",
     "istanbul": "~0.2.3",
-    "should": "~2.1.1"
+    "should": "~2.1.1",
+    "coveralls": "~2.6.1",
+    "mocha-lcov-reporter": "0.0.1"
   },
   "engines": {
     "node": "0.10"
