@@ -2,7 +2,8 @@ Bismillah
 
 #Buet73
 
-[![Build Status](https://drone.io/bitbucket.org/asifrc/buet73/status.png)](https://drone.io/bitbucket.org/asifrc/buet73/latest)
+[![Build Status](https://travis-ci.org/asifrc/buet73.png?branch=master)](https://travis-ci.org/asifrc/buet73)
+[![Coverage Status](https://coveralls.io/repos/asifrc/buet73/badge.png)](https://coveralls.io/r/asifrc/buet73)
 
 A social networking site for the Bangladesh University of Engineering and Technology, Class of 1973.
 
