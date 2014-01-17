@@ -55,6 +55,7 @@ describe("User Model", function() {
 			var reqTest = function(field) {
 				it("should return an error when `"+field+"` is missing", function(done) {
 					var invalidUser = validUser();
+					invalidUser.cpassword = invalidUser.password;
 					delete invalidUser[field];
 					User.register(invalidUser, function(err, result) {
 						err.should.equal("Registration Error: "+field+" field is missing");
@@ -66,6 +67,9 @@ describe("User Model", function() {
 			{
 				reqTest(User.reqFields[i]);
 			}
+			reqTest("cpassword");
+			
+			//it("should 
 		});
 	});
 });

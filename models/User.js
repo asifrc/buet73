@@ -4,7 +4,7 @@
 * User Model
 */
 
-var reqFields = [
+var reqFields = function() { return [
 	'firstName',
 	'lastName',
 	'displayName',
@@ -12,18 +12,18 @@ var reqFields = [
 	'email',
 	'password',
 	'country'
-];
-exports.reqFields = reqFields;
-var optFields = [
+]};
+exports.reqFields = reqFields();
+var optFields = function() { return [
 	'fbid',
 	'phone',
 	'address',
 	'city',
 	'stateProv',
 	'zip'
-];
-exports.optFields = optFields;
-var allFields = reqFields.concat(optFields);
+]};
+exports.optFields = optFields();
+var allFields = reqFields().concat(optFields());
 exports.allFields = allFields;
 
 /**
@@ -56,9 +56,11 @@ var respond = function (callback, err, result) {
 exports.register = function(user, cb) {
 	var err = null;
 	
-	for (var i=0; i<reqFields.length; i++)
+	var fields = reqFields();
+	fields.push('cpassword');
+	for (var i=0; i<fields.length; i++)
 	{
-		var field = reqFields[i];
+		var field = fields[i];
 		if (typeof user[field] === "undefined")
 		{
 			err = "Registration Error: "+field+" field is missing";
