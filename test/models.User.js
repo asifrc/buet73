@@ -6,8 +6,8 @@
 
 var User = require('../models/User');
 
-var should = require("should")
-	, assert = require("assert");
+var should = require("should"),
+	assert = require("assert");
 	
 var validUser = function() {
 	return {
@@ -33,9 +33,7 @@ describe("User Model", function() {
 			var user = new User.Model();
 			(typeof user).should.equal("object");
 		});
-		for (var i=0; i<User.allFields.length; i++)
-		{
-			var field = User.allFields[i];
+		var fieldTest = function(field) {
 			it("should contain a `"+field+"` property", function() {
 				var user = new User.Model();
 				(typeof user[field]).should.equal("object");
@@ -46,13 +44,15 @@ describe("User Model", function() {
 				var user = new User.Model(obj);
 				user[field].should.equal("Value");
 			});
+		};
+		for (var i=0; i<User.allFields.length; i++)
+		{
+			fieldTest(User.allFields[i]);
 		}
 	});
 	describe("Register", function() {
 		describe("Validation", function() {
-			for (var i=0; i<User.reqFields.length; i++)
-			{
-				var field = User.reqFields[i];
+			var reqTest = function(field) {
 				it("should return an error when `"+field+"` is missing", function(done) {
 					var invalidUser = validUser();
 					delete invalidUser[field];
@@ -61,6 +61,10 @@ describe("User Model", function() {
 						done();
 					});
 				});
+			};
+			for (var i=0; i<User.reqFields.length; i++)
+			{
+				reqTest(User.reqFields[i]);
 			}
 		});
 	});

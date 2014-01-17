@@ -29,7 +29,7 @@ exports.allFields = allFields;
 /**
 * Class: User object
 */
-UserModel = function(obj) {
+var UserModel = function(obj) {
 	var self = this;
 	obj = (typeof obj === "object") ? obj : {};
 	for (var i=0; i<allFields.length; i++)
