@@ -72,5 +72,10 @@ exports.register = function(user, cb) {
 			return respond(cb, err);
 		}
 	}
+	if (user.password !== user.cpassword)
+	{
+		err = "Registration Error: passwords do not match";
+		return respond(cb, err);
+	}
 	return respond(cb, err);
 };
