@@ -12,7 +12,7 @@ var reqFields = function() { return [
 	'email',
 	'password',
 	'country'
-]};
+];};
 exports.reqFields = reqFields();
 var optFields = function() { return [
 	'fbid',
@@ -21,7 +21,7 @@ var optFields = function() { return [
 	'city',
 	'stateProv',
 	'zip'
-]};
+];};
 exports.optFields = optFields();
 var allFields = reqFields().concat(optFields());
 exports.allFields = allFields;
