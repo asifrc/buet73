@@ -3,11 +3,11 @@
  * Module dependencies.
  */
 
-var express = require('express')
-	, user = require('./routes/user')
-	, http = require('http')
-	, path = require('path')
-	, mongoose = require('mongoose');
+var express = require('express'),
+	user = require('./routes/user'),
+	http = require('http'),
+	path = require('path'),
+	mongoose = require('mongoose');
 
 //Connect to MongoDB
 var mongoUrl = "mongodb://localhost/buet73";
