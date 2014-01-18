@@ -78,7 +78,14 @@ describe("User Model", function() {
 			}
 			reqTest("cpassword");
 			
-			//it("should return an error 
+			it("should return an error if the passwords do not match", function(done) {
+				var invalidUser = validUser();
+				invalidUser.cpassword = invalidUser.password+"mismatch";
+				User.register(invalidUser, function(err, result) {
+					err.should.equal("Registration Error: passwords do not match");
+					done();
+				});
+			});
 		});
 	});
 });
