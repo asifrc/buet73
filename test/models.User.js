@@ -62,6 +62,15 @@ describe("User Model", function() {
 						done();
 					});
 				});
+				it("should return an error when `"+field+"` is blank", function(done) {
+					var invalidUser = validUser();
+					invalidUser.cpassword = invalidUser.password;
+					invalidUser[field] = "";
+					User.register(invalidUser, function(err, result) {
+						err.should.equal("Registration Error: "+field+" field cannot be blank");
+						done();
+					});
+				});
 			};
 			for (var i=0; i<User.reqFields.length; i++)
 			{
@@ -69,7 +78,7 @@ describe("User Model", function() {
 			}
 			reqTest("cpassword");
 			
-			//it("should 
+			//it("should return an error 
 		});
 	});
 });
