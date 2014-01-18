@@ -4,6 +4,11 @@
 * User Model
 */
 
+var crypto = require('crypto');
+var rest = require('restler');
+var db_url = process.env.NEO4J_URL || 'http://localhost:7474';
+db_url += "/db/data/cypher";
+
 var reqFields = function() { return [
 	'firstName',
 	'lastName',
@@ -42,7 +47,7 @@ exports.Model = UserModel;
 
 
 var respond = function (callback, err, result) {
-	err = (typeof err === "undefined") ? null : err;
+	err = err || null;
 	if (typeof callback === "function")
 	{
 		callback(err, result);
@@ -77,5 +82,19 @@ exports.register = function(user, cb) {
 		err = "Registration Error: passwords do not match";
 		return respond(cb, err);
 	}
-	return respond(cb, err);
+	//Hash password
+	delete user.cpassword;
+	var pwhash = crypto.createHash('md5');
+	pwhash.update(user.password);
+	user.password = pwhash.digest('hex');
+	// Send Create request to NEO4J
+	var query = {
+		"query": "CREATE (n:User { props } ) RETURN n",
+		"params": {
+			"props": user
+		}
+	};
+	rest.postJson(db_url, query).on('complete', function(data, response) {
+		return respond(cb, err, response);
+	});
 };

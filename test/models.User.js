@@ -8,7 +8,11 @@ var User = require('../models/User');
 
 var should = require("should"),
 	assert = require("assert");
-	
+
+var rest = require('restler');
+var db_url = process.env.NEO4J_URL || 'http://localhost:7474';
+db_url += "/db/data/cypher";
+
 var validUser = function() {
 	return {
 		fbid: "1234",
@@ -27,7 +31,34 @@ var validUser = function() {
 	};
 };
 
+var emptyDb = function(cb) {
+	var query = {"query": "MATCH (n)-[r]-() DELETE n,r"};
+	rest.postJson(db_url, query).on('complete', function(data, response) {
+		if (response.statusCode === 200)
+		{
+			query = {"query": "MATCH (n) DELETE n"};
+			rest.postJson(db_url, query).on('complete', function(data, response) {
+				if (response.statusCode === 200)
+				{
+					cb();
+				}
+				else
+				{
+					cb(response.statusCode);
+				}
+			});
+		}
+		else
+		{
+			cb(response.statusCode);
+		}
+	});
+};
+
 describe("User Model", function() {
+	before(function(done) {
+		emptyDb(done);
+	});
 	describe("UserModel", function() {
 		it("should create a new User object", function() {
 			var user = new User.Model();
@@ -51,6 +82,12 @@ describe("User Model", function() {
 		}
 	});
 	describe("Register", function() {
+		before(function(done) {
+			emptyDb(done);
+		});
+		afterEach(function(done) {
+			emptyDb(done);
+		});
 		describe("Validation", function() {
 			var reqTest = function(field) {
 				it("should return an error when `"+field+"` is missing", function(done) {
@@ -93,6 +130,7 @@ describe("User Model", function() {
 				user.cpassword = user.password;
 				User.register(user, function(err, result) {
 					should.not.exist(err);
+					result.statusCode.should.equal(200);
 					done();
 				});
 			});
