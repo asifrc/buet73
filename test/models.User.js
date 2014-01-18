@@ -87,5 +87,15 @@ describe("User Model", function() {
 				});
 			});
 		});
+		describe("Valid User", function() {
+			it("should return no error if successfully registered", function(done) {
+				var user = validUser();
+				user.cpassword = user.password;
+				User.register(user, function(err, result) {
+					should.not.exist(err);
+					done();
+				});
+			});
+		});
 	});
 });
