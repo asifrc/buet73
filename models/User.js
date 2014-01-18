@@ -66,6 +66,11 @@ exports.register = function(user, cb) {
 			err = "Registration Error: "+field+" field is missing";
 			return respond(cb, err);
 		}
+		if (user[field] === "")
+		{
+			err = "Registration Error: "+field+" field cannot be blank";
+			return respond(cb, err);
+		}
 	}
 	return respond(cb, err);
 };
