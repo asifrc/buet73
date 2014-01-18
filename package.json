@@ -18,7 +18,7 @@
     "restler": "~3.1.0",
     "grunt": "~0.4.2",
     "grunt-simple-mocha": "~0.4.0",
-    "mocha": "~1.16.2",
+    "mocha": "~1.17.x",
     "istanbul": "~0.2.3",
     "should": "~2.1.1",
     "coveralls": "~2.6.1",
