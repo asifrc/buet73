@@ -160,6 +160,7 @@ describe("User Model", function() {
 		});
 	});
 	describe("Find", function() {
+		var tempUsers = [];
 		before(function(done) {
 			var userCount = 50;
 			var countDown = function(cb) {
@@ -175,6 +176,7 @@ describe("User Model", function() {
 			var reg = function(cb) {
 				var user = validUser();
 				user.cpassword = user.password;
+				tempUsers.push(user);
 				User.register(user, function(err, result) {
 					if (err)
 					{
@@ -188,8 +190,15 @@ describe("User Model", function() {
 			};
 			reg(reg);
 		});
-		it("should pass", function() {
-			true.should.be.ok;
+		it("should return an array", function(done) {
+			var criteria = {
+				fbid: tempUsers[0].email
+			};
+			User.find(criteria, function(err, result) {
+				should.not.exist(err);
+				Array.isArray(result).should.be.ok;
+				done();
+			});
 		});
 	});
 });
