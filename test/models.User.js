@@ -162,7 +162,7 @@ describe("User Model", function() {
 	describe("Find", function() {
 		var tempUsers = [];
 		before(function(done) {
-			var userCount = 50;
+			var userCount = 10;
 			var countDown = function(cb) {
 				if (--userCount <= 0)
 				{
@@ -199,7 +199,29 @@ describe("User Model", function() {
 				done();
 			});
 		});
-		it("should return one user when searching by email", function(done) {
+		it("should return all users when criteria is an empty object", function(done) {
+			var criteria = {
+			};
+			User.find(criteria, function(err, result) {
+				should.not.exist(err);
+				Array.isArray(result).should.be.ok;
+				result.length.should.equal(tempUsers.length);
+				done();
+			});
+		});
+		it("should return one user when searching by fbid", function(done) {
+			var criteria = {
+				fbid: tempUsers[0].fbid
+			};
+			User.find(criteria, function(err, result) {
+				should.not.exist(err);
+				Array.isArray(result).should.be.ok;
+				result.length.should.equal(1);
+				result[0].fbid.should.equal(criteria.fbid);
+				done();
+			});
+		});
+		it("should return results containing all UserModel fields", function(done) {
 			var criteria = {
 				email: tempUsers[0].email
 			};
@@ -208,6 +230,11 @@ describe("User Model", function() {
 				Array.isArray(result).should.be.ok;
 				result.length.should.equal(1);
 				result[0].email.should.equal(criteria.email);
+				sampleUser = new User.Model();
+				for (var field in sampleUser)
+				{
+					(typeof result[0][field]).should.not.equal("undefined");
+				}
 				done();
 			});
 		});

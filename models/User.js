@@ -21,11 +21,8 @@ var reqFields = function() { return [
 exports.reqFields = reqFields();
 var optFields = function() { return [
 	'fbid',
-	'phone',
-	'address',
 	'city',
-	'stateProv',
-	'zip'
+	'stateProv'
 ];};
 exports.optFields = optFields();
 var allFields = reqFields().concat(optFields());
@@ -116,10 +113,17 @@ exports.register = register;
 */
 var parseUsers = function(result) {
 	var users = [];
-	for (var i=0; i<result.data.length; i++)
+	if (Array.isArray(result.data))
 	{
-		var user = new UserModel(result.data[i][0].data);
-		users.push(user);
+		for (var i=0; i<result.data.length; i++)
+		{
+			var user = new UserModel(result.data[i][0].data);
+			users.push(user);
+		}
+	}
+	else
+	{
+		console.log(result);//DEBUG
 	}
 	return users;
 };
