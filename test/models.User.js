@@ -192,11 +192,22 @@ describe("User Model", function() {
 		});
 		it("should return an array", function(done) {
 			var criteria = {
-				fbid: tempUsers[0].email
 			};
 			User.find(criteria, function(err, result) {
 				should.not.exist(err);
 				Array.isArray(result).should.be.ok;
+				done();
+			});
+		});
+		it("should return one user when searching by email", function(done) {
+			var criteria = {
+				email: tempUsers[0].email
+			};
+			User.find(criteria, function(err, result) {
+				should.not.exist(err);
+				Array.isArray(result).should.be.ok;
+				result.length.should.equal(1);
+				result[0].email.should.equal(criteria.email);
 				done();
 			});
 		});

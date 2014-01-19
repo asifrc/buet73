@@ -58,7 +58,7 @@ var respond = function (callback, err, result) {
 /**
 * Create a User
 */
-exports.register = function(user, cb) {
+var register = function(user, cb) {
 	var err = null;
 	
 	var fields = reqFields();
@@ -100,7 +100,48 @@ exports.register = function(user, cb) {
 			"props": user
 		}
 	};
-	rest.postJson(db_url, query).on('complete', function(data, response) {
+	rest.postJson(db_url, query).on('complete', function(result, response) {
+		if (response.statusCode !== 200)
+		{
+			err = "Registration Error: receive "+response.statusCode+" response";
+			return respond(cb, err);
+		}
 		return respond(cb, err, response);
 	});
 };
+exports.register = register;
+
+/**
+* Retrieve a User
+*/
+var parseUsers = function(result) {
+	var users = [];
+	for (var i=0; i<result.data.length; i++)
+	{
+		var user = new UserModel(result.data[i][0].data);
+		users.push(user);
+	}
+	return users;
+};
+var find = function(criteria, cb) {
+	var err = null;
+	
+	var cypher = "MATCH (u:User) ";
+	var props = [];
+	
+	for (var property in criteria)
+	{
+		props.push("u."+property+"=\""+criteria[property]+"\" ");
+	}
+	cypher += (props.length>0) ? "WHERE "+props.join("AND") : "";
+	cypher += "RETURN u";
+	//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
+	var query = {
+		"query": cypher
+	};
+	rest.postJson(db_url, query).on('complete', function(result, response) {
+		var users = parseUsers(result);
+		return respond(cb, err, users);
+	});
+};
+exports.find = find;
