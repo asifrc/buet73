@@ -88,8 +88,14 @@ exports.register = function(user, cb) {
 	pwhash.update(user.password);
 	user.password = pwhash.digest('hex');
 	// Send Create request to NEO4J
+	var cypher = "CREATE (u:User { props } ) ";
+	cypher += "MERGE (d:Department { name: \""+user.department+"\" }) ";
+	cypher += "MERGE (c:Country { name: \""+user.country+"\" }) ";
+	cypher += "CREATE UNIQUE (u)-[:Studied]->(d) ";
+	cypher += "CREATE UNIQUE (u)-[:LivesIn]->(c) ";
+	cypher += "RETURN u";
 	var query = {
-		"query": "CREATE (n:User { props } ) RETURN n",
+		"query": cypher,
 		"params": {
 			"props": user
 		}
