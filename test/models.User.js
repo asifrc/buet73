@@ -85,7 +85,15 @@ describe("User Model", function() {
 	describe("UserModel", function() {
 		it("should create a new User object", function() {
 			var user = new User.Model();
-			(typeof user).should.equal("object");
+			user.should.be.an.instanceOf(User.Model);
+		});
+		it("should create a new User object from another User object", function() {
+			var obj = validUser();
+			var userA = new User.Model(obj);
+			userA.should.be.an.instanceOf(User.Model);
+			var userB = new User.Model(userA);
+			userB.should.be.an.instanceOf(User.Model);
+			should.deepEqual(userA, userB);
 		});
 		var fieldTest = function(field) {
 			it("should contain a `"+field+"` property", function() {
@@ -103,6 +111,11 @@ describe("User Model", function() {
 		{
 			fieldTest(User.allFields[i]);
 		}
+		it("should accept and return a valid user object as a parameter", function() {
+			var obj = validUser();
+			var user = new User.Model(obj);
+			user.should.be.an.instanceOf(User.Model);
+		});
 	});
 	describe("Register", function() {
 		before(function(done) {
@@ -136,7 +149,6 @@ describe("User Model", function() {
 			{
 				reqTest(User.reqFields[i]);
 			}
-			reqTest("cpassword");
 			
 			it("should return an error if the passwords do not match", function(done) {
 				var invalidUser = validUser();
@@ -149,7 +161,7 @@ describe("User Model", function() {
 		});
 		describe("Valid User", function() {
 			it("should return no error if successfully registered", function(done) {
-				var user = validUser();
+				var user = new User.Model(validUser());
 				user.cpassword = user.password;
 				User.register(user, function(err, result) {
 					should.not.exist(err);
@@ -174,7 +186,7 @@ describe("User Model", function() {
 				}
 			};
 			var reg = function(cb) {
-				var user = validUser();
+				var user = new User.Model(validUser());
 				user.cpassword = user.password;
 				tempUsers.push(user);
 				User.register(user, function(err, result) {
@@ -230,11 +242,41 @@ describe("User Model", function() {
 				Array.isArray(result).should.be.ok;
 				result.length.should.equal(1);
 				result[0].email.should.equal(criteria.email);
-				sampleUser = new User.Model();
-				for (var field in sampleUser)
-				{
-					(typeof result[0][field]).should.not.equal("undefined");
-				}
+				result[0].should.be.an.instanceOf(User.Model);
+				done();
+			});
+		});
+		it("should return zero users when searching for a non-existent field", function(done) {
+			var criteria = {
+				doesnotexist: "DOESNOTEXIST"
+			};
+			User.find(criteria, function(err, result) {
+				should.not.exist(err);
+				Array.isArray(result).should.be.ok;
+				result.length.should.equal(0);
+				done();
+			});
+		});
+		it("should return zero users when searching for a non-matching firstName", function(done) {
+			var criteria = {
+				firstName: "DOESNOTEXIST"
+			};
+			User.find(criteria, function(err, result) {
+				should.not.exist(err);
+				Array.isArray(result).should.be.ok;
+				result.length.should.equal(0);
+				done();
+			});
+		});
+		it("should return a single match when passed an existing UserModel object", function(done) {
+			var criteria = tempUsers[0];
+			criteria.should.be.an.instanceOf(User.Model);
+			User.find(criteria, function(err, result) {
+				should.not.exist(err);
+				Array.isArray(result).should.be.ok;
+				result.length.should.equal(1);
+				result[0].should.be.an.instanceOf(User.Model);
+				//result[0].should.deep.equal(
 				done();
 			});
 		});

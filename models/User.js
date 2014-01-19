@@ -55,15 +55,16 @@ var respond = function (callback, err, result) {
 /**
 * Create a User
 */
-var register = function(user, cb) {
+var register = function(userData, cb) {
 	var err = null;
 	
+	var user = new UserModel(userData);
+	
 	var fields = reqFields();
-	fields.push('cpassword');
 	for (var i=0; i<fields.length; i++)
 	{
 		var field = fields[i];
-		if (typeof user[field] === "undefined")
+		if (user[field] === null)
 		{
 			err = "Registration Error: "+field+" field is missing";
 			return respond(cb, err);
@@ -74,16 +75,32 @@ var register = function(user, cb) {
 			return respond(cb, err);
 		}
 	}
-	if (user.password !== user.cpassword)
+	if (typeof userData.cpassword === "undefined")
+	{
+		err = "Registration Error: cpassword field is missing";
+		return respond(cb, err);
+	}
+	if (user.password !== userData.cpassword)
 	{
 		err = "Registration Error: passwords do not match";
 		return respond(cb, err);
 	}
 	//Hash password
-	delete user.cpassword;
 	var pwhash = crypto.createHash('md5');
 	pwhash.update(user.password);
 	user.password = pwhash.digest('hex');
+	
+	//Delete null fields so Cypher Query functions properly
+	fields = optFields();
+	for (var j=0; j<fields.length; j++)
+	{
+		var prop = fields[j];
+		if (user[prop] === null)
+		{
+			delete user[prop];
+		}
+	}
+	
 	// Send Create request to NEO4J
 	var cypher = "CREATE (u:User { props } ) ";
 	cypher += "MERGE (d:Department { name: \""+user.department+"\" }) ";
@@ -91,12 +108,14 @@ var register = function(user, cb) {
 	cypher += "CREATE UNIQUE (u)-[:Studied]->(d) ";
 	cypher += "CREATE UNIQUE (u)-[:LivesIn]->(c) ";
 	cypher += "RETURN u";
+	//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
 	var query = {
 		"query": cypher,
 		"params": {
 			"props": user
 		}
 	};
+	//console.log("\n\nQUERY:\n\n", query);//DEBUG
 	rest.postJson(db_url, query).on('complete', function(result, response) {
 		if (response.statusCode !== 200)
 		{
@@ -113,17 +132,10 @@ exports.register = register;
 */
 var parseUsers = function(result) {
 	var users = [];
-	if (Array.isArray(result.data))
+	for (var i=0; i<result.data.length; i++)
 	{
-		for (var i=0; i<result.data.length; i++)
-		{
-			var user = new UserModel(result.data[i][0].data);
-			users.push(user);
-		}
-	}
-	else
-	{
-		console.log(result);//DEBUG
+		var user = new UserModel(result.data[i][0].data);
+		users.push(user);
 	}
 	return users;
 };
