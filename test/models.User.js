@@ -160,6 +160,36 @@ describe("User Model", function() {
 		});
 	});
 	describe("Find", function() {
-		
+		before(function(done) {
+			var userCount = 50;
+			var countDown = function(cb) {
+				if (--userCount <= 0)
+				{
+					done();
+				}
+				else
+				{
+					cb(cb);
+				}
+			};
+			var reg = function(cb) {
+				var user = validUser();
+				user.cpassword = user.password;
+				User.register(user, function(err, result) {
+					if (err)
+					{
+						done(err);
+					}
+					else
+					{
+						countDown(cb);
+					}
+				});
+			};
+			reg(reg);
+		});
+		it("should pass", function() {
+			true.should.be.ok;
+		});
 	});
 });
