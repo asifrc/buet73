@@ -8,6 +8,10 @@ var crypto = require('crypto');
 var rest = require('restler');
 var db_url = process.env.NEO4J_URL || 'http://localhost:7474';
 db_url += "/db/data/cypher";
+exports.db_url = function(url) {
+	db_url = url || db_url;
+	return db_url;
+};
 
 var reqFields = function() { return [
 	'firstName',
@@ -46,9 +50,6 @@ function UserModel (obj) {
 		return pwhash.digest('hex');
 	};
 	this.hash = hash;
-	this.setPassword = function(pw) {
-		this.password = hash(pw);
-	};
 	this.confirmPassword = function(pw) {
 		return ( this.password === hash(pw) );
 	};

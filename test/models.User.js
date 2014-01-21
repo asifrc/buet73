@@ -137,6 +137,28 @@ describe("User Model", function() {
 		afterEach(function(done) {
 			emptyDb(done);
 		});
+		describe("Connection", function() {
+			it("should return an error if the server returns an error code", function(done) {
+				var old_url = User.db_url();
+				User.db_url(old_url+"/badaddress");
+				var user = new User.Model(validUser());
+				user.cpassword = "password";
+				User.register(user, function(err, result) {
+					err.should.exist;
+					User.db_url(old_url);
+					done();
+				});
+			});
+			it("should return an object when the callback passed is not a function", function() {
+				var user = new User.Model(validUser());
+				user.cpassword = "password";
+				var e = new Error();
+				var block = function() {
+					User.register(user, {});
+				};
+				should(block).not.throw(e);
+			});
+		});
 		describe("Validation", function() {
 			var reqTest = function(field) {
 				it("should return an error when `"+field+"` is missing", function(done) {
@@ -163,6 +185,13 @@ describe("User Model", function() {
 				reqTest(User.reqFields[i]);
 			}
 			
+			it("should return an error if password confirmation missing", function(done) {
+				var invalidUser = validUser();
+				User.register(invalidUser, function(err, result) {
+					err.should.equal("Registration Error: cpassword field is missing");
+					done();
+				});
+			});
 			it("should return an error if the passwords do not match", function(done) {
 				var invalidUser = validUser();
 				invalidUser.cpassword = invalidUser.password+"mismatch";
