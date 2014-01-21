@@ -43,20 +43,26 @@ function UserModel (obj) {
 		var field = allFields[i];
 		self[field] = (typeof obj[field] === "undefined") ? null : obj[field];
 	}
+	// Make email lowercase
+	if (typeof self.email === "string")
+	{
+		self.email = self.email.toLowerCase();
+	}
+	
 	//Hash password
 	var hash = function(pw) {
 		var pwhash = crypto.createHash('md5');
 		pwhash.update(pw);
 		return pwhash.digest('hex');
 	};
-	this.hash = hash;
-	this.confirmPassword = function(pw) {
-		return ( this.password === hash(pw) );
+	self.hash = hash;
+	self.confirmPassword = function(pw) {
+		return ( self.password === hash(pw) );
 	};
 	//Hash passed parameter if present and obj is not an instance of UserModel
 	if (typeof obj.password === "string" && obj.password.length > 0 && obj.constructor !== UserModel)
 	{
-		this.password = hash(obj.password);
+		self.password = hash(obj.password);
 	}
 }
 exports.Model = UserModel;
@@ -119,6 +125,12 @@ var register = function(userData, cb) {
 	if (!user.confirmPassword(userData.cpassword))
 	{
 		err = "Registration Error: passwords do not match";
+		return respond(cb, err);
+	}
+	var emailFormat = /.+@.+\..+/i;
+	if (!emailFormat.test(user.email))
+	{
+		err = "Registration Error: invalid email format";
 		return respond(cb, err);
 	}
 	

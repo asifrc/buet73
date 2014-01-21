@@ -48,7 +48,7 @@ var validUser = function() {
 		lastName: vals.lastName[0],
 		displayName: vals.firstName[0]+" "+vals.lastName[0],
 		department:  vals.department[Math.floor(Math.random()*vals.department.length)],
-		email: (vals.firstName[0]+vals.lastName[0]).toLowerCase()+"@asifchoudhury.com",
+		email: vals.firstName[0]+vals.lastName[0]+"@asifchoudhury.com",
 		password: "password",
 		country: vals.country[Math.floor(Math.random()*vals.country.length)]
 	};
@@ -108,15 +108,15 @@ describe("User Model", function() {
 			});
 			it("should set a value for `"+field+"` when present in parameter", function() {
 				var obj = {};
-				obj[field] = "Value";
+				obj[field] = "value";
 				var user = new User.Model(obj);
 				if (field !== "password")
 				{
-					user[field].should.equal("Value");
+					user[field].should.equal("value");
 				}
 				else
 				{
-					user.confirmPassword("Value").should.be.ok;
+					user.confirmPassword("value").should.be.ok;
 				}
 			});
 		};
