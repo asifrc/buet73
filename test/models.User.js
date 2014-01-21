@@ -200,6 +200,17 @@ describe("User Model", function() {
 					done();
 				});
 			});
+			it("should return an error if the email address already exists", function(done) {
+				var user = validUser();
+				user.cpassword = user.password;
+				User.register(user, function(err, result) {
+					should.not.exist(err);
+					User.register(user, function(err, result) {
+						err.should.equal("Registration Error: email already in use");
+						done();
+					});
+				});
+			});
 		});
 		describe("Valid User", function() {
 			it("should return no error if successfully registered", function(done) {
