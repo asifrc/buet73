@@ -31,7 +31,7 @@ exports.allFields = allFields;
 /**
 * Class: User object
 */
-var UserModel = function(obj) {
+function UserModel (obj) {
 	var self = this;
 	obj = (typeof obj === "object") ? obj : {};
 	for (var i=0; i<allFields.length; i++)
@@ -39,7 +39,25 @@ var UserModel = function(obj) {
 		var field = allFields[i];
 		self[field] = (typeof obj[field] === "undefined") ? null : obj[field];
 	}
-};
+	//Hash password
+	var hash = function(pw) {
+		var pwhash = crypto.createHash('md5');
+		pwhash.update(pw);
+		return pwhash.digest('hex');
+	};
+	this.hash = hash;
+	this.setPassword = function(pw) {
+		this.password = hash(pw);
+	};
+	this.confirmPassword = function(pw) {
+		return ( this.password === hash(pw) );
+	};
+	//Hash passed parameter if present and obj is not an instance of UserModel
+	if (typeof obj.password === "string" && obj.password.length > 0 && obj.constructor !== UserModel)
+	{
+		this.password = hash(obj.password);
+	}
+}
 exports.Model = UserModel;
 
 
@@ -80,7 +98,7 @@ var register = function(userData, cb) {
 		err = "Registration Error: cpassword field is missing";
 		return respond(cb, err);
 	}
-	if (user.password !== userData.cpassword)
+	if (!user.confirmPassword(userData.cpassword))
 	{
 		err = "Registration Error: passwords do not match";
 		return respond(cb, err);
@@ -147,7 +165,10 @@ var find = function(criteria, cb) {
 	
 	for (var property in criteria)
 	{
-		props.push("u."+property+"=\""+criteria[property]+"\" ");
+		if (criteria[property] !== null)
+		{
+			props.push("u."+property+"=\""+criteria[property]+"\" ");
+		}
 	}
 	cypher += (props.length>0) ? "WHERE "+props.join("AND") : "";
 	cypher += "RETURN u";

@@ -93,7 +93,13 @@ describe("User Model", function() {
 			userA.should.be.an.instanceOf(User.Model);
 			var userB = new User.Model(userA);
 			userB.should.be.an.instanceOf(User.Model);
-			should.deepEqual(userA, userB);
+			for (var field in userA) 
+			{
+				if (userA[field] !== null && typeof userB[field] !== "function")
+				{
+					userA[field].should.equal(userB[field]);
+				}
+			}
 		});
 		var fieldTest = function(field) {
 			it("should contain a `"+field+"` property", function() {
@@ -104,7 +110,14 @@ describe("User Model", function() {
 				var obj = {};
 				obj[field] = "Value";
 				var user = new User.Model(obj);
-				user[field].should.equal("Value");
+				if (field !== "password")
+				{
+					user[field].should.equal("Value");
+				}
+				else
+				{
+					user.confirmPassword("Value").should.be.ok;
+				}
 			});
 		};
 		for (var i=0; i<User.allFields.length; i++)
@@ -162,7 +175,7 @@ describe("User Model", function() {
 		describe("Valid User", function() {
 			it("should return no error if successfully registered", function(done) {
 				var user = new User.Model(validUser());
-				user.cpassword = user.password;
+				user.cpassword = validUser().password;
 				User.register(user, function(err, result) {
 					should.not.exist(err);
 					result.statusCode.should.equal(200);
@@ -178,6 +191,9 @@ describe("User Model", function() {
 			var countDown = function(cb) {
 				if (--userCount <= 0)
 				{
+					tempUsers.map(function(el) {
+						delete el.cpassword;
+					});
 					done();
 				}
 				else
@@ -187,7 +203,7 @@ describe("User Model", function() {
 			};
 			var reg = function(cb) {
 				var user = new User.Model(validUser());
-				user.cpassword = user.password;
+				user.cpassword = "password";
 				tempUsers.push(user);
 				User.register(user, function(err, result) {
 					if (err)
@@ -269,7 +285,7 @@ describe("User Model", function() {
 			});
 		});
 		it("should return a single match when passed an existing UserModel object", function(done) {
-			var criteria = tempUsers[0];
+			var criteria = new User.Model(tempUsers[0]);
 			criteria.should.be.an.instanceOf(User.Model);
 			User.find(criteria, function(err, result) {
 				should.not.exist(err);
