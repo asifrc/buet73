@@ -103,10 +103,6 @@ var register = function(userData, cb) {
 		err = "Registration Error: passwords do not match";
 		return respond(cb, err);
 	}
-	//Hash password
-	var pwhash = crypto.createHash('md5');
-	pwhash.update(user.password);
-	user.password = pwhash.digest('hex');
 	
 	//Delete null fields so Cypher Query functions properly
 	fields = optFields();
@@ -148,7 +144,7 @@ exports.register = register;
 /**
 * Retrieve a User
 */
-var parseUsers = function(result) {
+var parseUsers = function(result,res) {
 	var users = [];
 	for (var i=0; i<result.data.length; i++)
 	{
@@ -165,19 +161,19 @@ var find = function(criteria, cb) {
 	
 	for (var property in criteria)
 	{
-		if (criteria[property] !== null)
+		if (criteria[property] !== null && typeof criteria[property] !== "function")
 		{
 			props.push("u."+property+"=\""+criteria[property]+"\" ");
 		}
 	}
-	cypher += (props.length>0) ? "WHERE "+props.join("AND") : "";
+	cypher += (props.length>0) ? "WHERE "+props.join("AND ") : "";
 	cypher += "RETURN u";
 	//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
 	var query = {
 		"query": cypher
 	};
 	rest.postJson(db_url, query).on('complete', function(result, response) {
-		var users = parseUsers(result);
+		var users = parseUsers(result,response);
 		return respond(cb, err, users);
 	});
 };

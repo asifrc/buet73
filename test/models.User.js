@@ -285,6 +285,7 @@ describe("User Model", function() {
 			});
 		});
 		it("should return a single match when passed an existing UserModel object", function(done) {
+			tempUsers[0].should.be.an.instanceOf(User.Model);
 			var criteria = new User.Model(tempUsers[0]);
 			criteria.should.be.an.instanceOf(User.Model);
 			User.find(criteria, function(err, result) {
@@ -292,7 +293,6 @@ describe("User Model", function() {
 				Array.isArray(result).should.be.ok;
 				result.length.should.equal(1);
 				result[0].should.be.an.instanceOf(User.Model);
-				//result[0].should.deep.equal(
 				done();
 			});
 		});
