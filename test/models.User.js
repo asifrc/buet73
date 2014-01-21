@@ -200,6 +200,27 @@ describe("User Model", function() {
 					done();
 				});
 			});
+			it("should return an error if the email is invalidly formatted", function(done) {
+				var user = validUser();
+				user.cpassword = user.password;
+				user.email = "notavalidformat1";
+				User.register(user, function(err, result) {
+					err.should.equal("Registration Error: invalid email format");
+					user = validUser();
+					user.cpassword = user.password;
+					user.email = "notavalid@format2";
+					User.register(user, function(err, result) {
+						err.should.equal("Registration Error: invalid email format");
+						user = validUser();
+						user.cpassword = user.password;
+						user.email = "@notavalidformat3";
+						User.register(user, function(err, result) {
+							err.should.equal("Registration Error: invalid email format");
+							done();
+						});
+					});
+				});
+			});
 			it("should return an error if the email address already exists", function(done) {
 				var user = validUser();
 				user.cpassword = user.password;
