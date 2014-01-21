@@ -43,25 +43,33 @@ function UserModel (obj) {
 		var field = allFields[i];
 		self[field] = (typeof obj[field] === "undefined") ? null : obj[field];
 	}
+	// Make email lowercase
+	if (typeof self.email === "string")
+	{
+		self.email = self.email.toLowerCase();
+	}
+	
 	//Hash password
 	var hash = function(pw) {
 		var pwhash = crypto.createHash('md5');
 		pwhash.update(pw);
 		return pwhash.digest('hex');
 	};
-	this.hash = hash;
-	this.confirmPassword = function(pw) {
-		return ( this.password === hash(pw) );
+	self.hash = hash;
+	self.confirmPassword = function(pw) {
+		return ( self.password === hash(pw) );
 	};
 	//Hash passed parameter if present and obj is not an instance of UserModel
 	if (typeof obj.password === "string" && obj.password.length > 0 && obj.constructor !== UserModel)
 	{
-		this.password = hash(obj.password);
+		self.password = hash(obj.password);
 	}
 }
 exports.Model = UserModel;
 
-
+/**
+* Uniform method to call callbacks for exported functions
+*/
 var respond = function (callback, err, result) {
 	err = err || null;
 	if (typeof callback === "function")
@@ -69,6 +77,21 @@ var respond = function (callback, err, result) {
 		callback(err, result);
 	}
 	return { err: err, result: result };
+};
+
+/**
+* Make a Cypher Query to Neo4j
+*/
+var neo = function(query, superCb, cb) {
+	var err = null;
+	rest.postJson(db_url, query).on('complete', function(result, response) {
+		if (response.statusCode !== 200)
+		{
+			err = "Registration Error: received "+response.statusCode+" response";
+			return respond(superCb, err);
+		}
+		return respond(cb, err, result);
+	});
 };
 
 /**
@@ -104,6 +127,12 @@ var register = function(userData, cb) {
 		err = "Registration Error: passwords do not match";
 		return respond(cb, err);
 	}
+	var emailFormat = /.+@.+\..+/i;
+	if (!emailFormat.test(user.email))
+	{
+		err = "Registration Error: invalid email format";
+		return respond(cb, err);
+	}
 	
 	//Delete null fields so Cypher Query functions properly
 	fields = optFields();
@@ -116,28 +145,32 @@ var register = function(userData, cb) {
 		}
 	}
 	
-	// Send Create request to NEO4J
-	var cypher = "CREATE (u:User { props } ) ";
-	cypher += "MERGE (d:Department { name: \""+user.department+"\" }) ";
-	cypher += "MERGE (c:Country { name: \""+user.country+"\" }) ";
-	cypher += "CREATE UNIQUE (u)-[:Studied]->(d) ";
-	cypher += "CREATE UNIQUE (u)-[:LivesIn]->(c) ";
-	cypher += "RETURN u";
-	//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
-	var query = {
-		"query": cypher,
-		"params": {
-			"props": user
-		}
-	};
-	//console.log("\n\nQUERY:\n\n", query);//DEBUG
-	rest.postJson(db_url, query).on('complete', function(result, response) {
-		if (response.statusCode !== 200)
+	// Check for unique email address
+	var cypher = "match (n:User) where n.email=\""+user.email+"\" return count(n)";
+	neo({query: cypher}, cb, function(err, res) {
+		if (res.data[0][0] !== 0)
 		{
-			err = "Registration Error: receive "+response.statusCode+" response";
+			err = "Registration Error: email already in use";
 			return respond(cb, err);
 		}
-		return respond(cb, err, response);
+		// Send Create request to NEO4J
+		var cypher = "CREATE (u:User { props } ) ";
+		cypher += "MERGE (d:Department { name: \""+user.department+"\" }) ";
+		cypher += "MERGE (c:Country { name: \""+user.country+"\" }) ";
+		cypher += "CREATE UNIQUE (u)-[:Studied]->(d) ";
+		cypher += "CREATE UNIQUE (u)-[:LivesIn]->(c) ";
+		cypher += "RETURN u";
+		//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
+		var query = {
+			"query": cypher,
+			"params": {
+				"props": user
+			}
+		};
+		//console.log("\n\nQUERY:\n\n", query);//DEBUG
+		neo(query, cb, function(err, result) {
+			return respond(cb, err, result);
+		});
 	});
 };
 exports.register = register;
@@ -145,7 +178,7 @@ exports.register = register;
 /**
 * Retrieve a User
 */
-var parseUsers = function(result,res) {
+var parseUsers = function(result) {
 	var users = [];
 	for (var i=0; i<result.data.length; i++)
 	{
@@ -173,8 +206,8 @@ var find = function(criteria, cb) {
 	var query = {
 		"query": cypher
 	};
-	rest.postJson(db_url, query).on('complete', function(result, response) {
-		var users = parseUsers(result,response);
+	neo(query, cb, function(err, result) {
+		var users = parseUsers(result);
 		return respond(cb, err, users);
 	});
 };

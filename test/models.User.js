@@ -48,7 +48,7 @@ var validUser = function() {
 		lastName: vals.lastName[0],
 		displayName: vals.firstName[0]+" "+vals.lastName[0],
 		department:  vals.department[Math.floor(Math.random()*vals.department.length)],
-		email: (vals.firstName[0]+vals.lastName[0]).toLowerCase()+"@asifchoudhury.com",
+		email: vals.firstName[0]+vals.lastName[0]+"@asifchoudhury.com",
 		password: "password",
 		country: vals.country[Math.floor(Math.random()*vals.country.length)]
 	};
@@ -108,15 +108,15 @@ describe("User Model", function() {
 			});
 			it("should set a value for `"+field+"` when present in parameter", function() {
 				var obj = {};
-				obj[field] = "Value";
+				obj[field] = "value";
 				var user = new User.Model(obj);
 				if (field !== "password")
 				{
-					user[field].should.equal("Value");
+					user[field].should.equal("value");
 				}
 				else
 				{
-					user.confirmPassword("Value").should.be.ok;
+					user.confirmPassword("value").should.be.ok;
 				}
 			});
 		};
@@ -200,6 +200,38 @@ describe("User Model", function() {
 					done();
 				});
 			});
+			it("should return an error if the email is invalidly formatted", function(done) {
+				var user = validUser();
+				user.cpassword = user.password;
+				user.email = "notavalidformat1";
+				User.register(user, function(err, result) {
+					err.should.equal("Registration Error: invalid email format");
+					user = validUser();
+					user.cpassword = user.password;
+					user.email = "notavalid@format2";
+					User.register(user, function(err, result) {
+						err.should.equal("Registration Error: invalid email format");
+						user = validUser();
+						user.cpassword = user.password;
+						user.email = "@notavalidformat3";
+						User.register(user, function(err, result) {
+							err.should.equal("Registration Error: invalid email format");
+							done();
+						});
+					});
+				});
+			});
+			it("should return an error if the email address already exists", function(done) {
+				var user = validUser();
+				user.cpassword = user.password;
+				User.register(user, function(err, result) {
+					should.not.exist(err);
+					User.register(user, function(err, result) {
+						err.should.equal("Registration Error: email already in use");
+						done();
+					});
+				});
+			});
 		});
 		describe("Valid User", function() {
 			it("should return no error if successfully registered", function(done) {
@@ -207,7 +239,7 @@ describe("User Model", function() {
 				user.cpassword = validUser().password;
 				User.register(user, function(err, result) {
 					should.not.exist(err);
-					result.statusCode.should.equal(200);
+					result.data.should.exist;
 					done();
 				});
 			});
