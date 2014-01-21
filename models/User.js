@@ -116,28 +116,42 @@ var register = function(userData, cb) {
 		}
 	}
 	
-	// Send Create request to NEO4J
-	var cypher = "CREATE (u:User { props } ) ";
-	cypher += "MERGE (d:Department { name: \""+user.department+"\" }) ";
-	cypher += "MERGE (c:Country { name: \""+user.country+"\" }) ";
-	cypher += "CREATE UNIQUE (u)-[:Studied]->(d) ";
-	cypher += "CREATE UNIQUE (u)-[:LivesIn]->(c) ";
-	cypher += "RETURN u";
-	//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
-	var query = {
-		"query": cypher,
-		"params": {
-			"props": user
-		}
-	};
-	//console.log("\n\nQUERY:\n\n", query);//DEBUG
-	rest.postJson(db_url, query).on('complete', function(result, response) {
-		if (response.statusCode !== 200)
+	// Check for unique email address
+	var cypher = "match (n:User) where n.email=\""+user.email+"\" return count(n)";
+	rest.postJson(db_url, {query: cypher}).on('complete', function(res, resp) {
+		if (resp.statusCode !== 200)
 		{
-			err = "Registration Error: receive "+response.statusCode+" response";
+			err = "Registration Error: receive "+resp.statusCode+" response";
 			return respond(cb, err);
 		}
-		return respond(cb, err, response);
+		if (res.data[0][0] !== 0)
+		{
+			err = "Registration Error: email already in use";
+			return respond(cb, err);
+		}
+		// Send Create request to NEO4J
+		var cypher = "CREATE (u:User { props } ) ";
+		cypher += "MERGE (d:Department { name: \""+user.department+"\" }) ";
+		cypher += "MERGE (c:Country { name: \""+user.country+"\" }) ";
+		cypher += "CREATE UNIQUE (u)-[:Studied]->(d) ";
+		cypher += "CREATE UNIQUE (u)-[:LivesIn]->(c) ";
+		cypher += "RETURN u";
+		//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
+		var query = {
+			"query": cypher,
+			"params": {
+				"props": user
+			}
+		};
+		//console.log("\n\nQUERY:\n\n", query);//DEBUG
+		rest.postJson(db_url, query).on('complete', function(result, response) {
+			if (response.statusCode !== 200)
+			{
+				err = "Registration Error: receive "+response.statusCode+" response";
+				return respond(cb, err);
+			}
+			return respond(cb, err, response);
+		});
 	});
 };
 exports.register = register;
