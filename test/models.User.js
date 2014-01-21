@@ -216,6 +216,7 @@ describe("User Model", function() {
 	describe("Find", function() {
 		var tempUsers = [];
 		before(function(done) {
+			this.timeout(20000); // Extended max timeout for Travis CI
 			var userCount = 10;
 			var countDown = function(cb) {
 				if (--userCount <= 0)
