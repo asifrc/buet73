@@ -218,7 +218,7 @@ describe("User Model", function() {
 				user.cpassword = validUser().password;
 				User.register(user, function(err, result) {
 					should.not.exist(err);
-					result.statusCode.should.equal(200);
+					result.data.should.exist;
 					done();
 				});
 			});

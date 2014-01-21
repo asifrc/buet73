@@ -61,7 +61,9 @@ function UserModel (obj) {
 }
 exports.Model = UserModel;
 
-
+/**
+* Uniform method to call callbacks for exported functions
+*/
 var respond = function (callback, err, result) {
 	err = err || null;
 	if (typeof callback === "function")
@@ -69,6 +71,21 @@ var respond = function (callback, err, result) {
 		callback(err, result);
 	}
 	return { err: err, result: result };
+};
+
+/**
+* Make a Cypher Query to Neo4j
+*/
+var neo = function(query, superCb, cb) {
+	var err = null;
+	rest.postJson(db_url, query).on('complete', function(result, response) {
+		if (response.statusCode !== 200)
+		{
+			err = "Registration Error: received "+response.statusCode+" response";
+			return respond(superCb, err);
+		}
+		return respond(cb, err, result);
+	});
 };
 
 /**
@@ -118,12 +135,7 @@ var register = function(userData, cb) {
 	
 	// Check for unique email address
 	var cypher = "match (n:User) where n.email=\""+user.email+"\" return count(n)";
-	rest.postJson(db_url, {query: cypher}).on('complete', function(res, resp) {
-		if (resp.statusCode !== 200)
-		{
-			err = "Registration Error: receive "+resp.statusCode+" response";
-			return respond(cb, err);
-		}
+	neo({query: cypher}, cb, function(err, res) {
 		if (res.data[0][0] !== 0)
 		{
 			err = "Registration Error: email already in use";
@@ -144,13 +156,8 @@ var register = function(userData, cb) {
 			}
 		};
 		//console.log("\n\nQUERY:\n\n", query);//DEBUG
-		rest.postJson(db_url, query).on('complete', function(result, response) {
-			if (response.statusCode !== 200)
-			{
-				err = "Registration Error: receive "+response.statusCode+" response";
-				return respond(cb, err);
-			}
-			return respond(cb, err, response);
+		neo(query, cb, function(err, result) {
+			return respond(cb, err, result);
 		});
 	});
 };
@@ -159,7 +166,7 @@ exports.register = register;
 /**
 * Retrieve a User
 */
-var parseUsers = function(result,res) {
+var parseUsers = function(result) {
 	var users = [];
 	for (var i=0; i<result.data.length; i++)
 	{
@@ -187,8 +194,8 @@ var find = function(criteria, cb) {
 	var query = {
 		"query": cypher
 	};
-	rest.postJson(db_url, query).on('complete', function(result, response) {
-		var users = parseUsers(result,response);
+	neo(query, cb, function(err, result) {
+		var users = parseUsers(result);
 		return respond(cb, err, users);
 	});
 };
