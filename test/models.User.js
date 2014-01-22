@@ -215,18 +215,18 @@ describe("User Model", function() {
 				});
 			});
 			it("should return an error if the email is invalidly formatted", function(done) {
-				var user = validUser();
-				user.cpassword = user.password;
+				var user = new User.Model(validUser());
+				user.cpassword = validUser().password;
 				user.email = "notavalidformat1";
 				User.register(user, function(err, result) {
 					err.should.equal("Registration Error: invalid email format");
-					user = validUser();
-					user.cpassword = user.password;
+					user = new User.Model(validUser());
+					user.cpassword = validUser().password;
 					user.email = "notavalid@format2";
 					User.register(user, function(err, result) {
 						err.should.equal("Registration Error: invalid email format");
-						user = validUser();
-						user.cpassword = user.password;
+						user = new User.Model(validUser());
+						user.cpassword = validUser().password;
 						user.email = "@notavalidformat3";
 						User.register(user, function(err, result) {
 							err.should.equal("Registration Error: invalid email format");
@@ -236,8 +236,8 @@ describe("User Model", function() {
 				});
 			});
 			it("should return an error if the email address already exists", function(done) {
-				var user = validUser();
-				user.cpassword = user.password;
+				var user = new User.Model(validUser());
+				user.cpassword = validUser().password;
 				User.register(user, function(err, result) {
 					should.not.exist(err);
 					User.register(user, function(err, result) {
@@ -416,6 +416,7 @@ describe("User Model", function() {
 	describe("Update", function() {
 		it("should return an error if not passed an instance of UserModel", function(done) {
 			var user = {};
+			user.displayName = "Updated Name";
 			User.update(user, function(err, result) {
 				err.should.exist;
 				done();
@@ -423,6 +424,7 @@ describe("User Model", function() {
 		});
 		it("should return an error if User's _id is null", function(done) {
 			var user = new User.Model();
+			user.displayName = "Updated Name";
 			User.update(user, function(err, result) {
 				err.should.exist;
 				done();
@@ -431,12 +433,14 @@ describe("User Model", function() {
 		it("should return an error if User's _id is not found", function(done) {
 			var user = new User.Model();
 			user.id("0");
+			user.displayName = "Updated Name";
 			User.update(user, function(err, result) {
 				err.should.exist;
 				done();
 			});
 		});
 		it("should return the saved user if successfully updated", function(done) {
+			//this.timeout(20000);
 			var user = new User.Model(validUser());
 			user.cpassword = validUser().password;
 			User.register(user, function(error, result) {
@@ -449,6 +453,7 @@ describe("User Model", function() {
 				
 				var newUser = new User.Model(validUser());
 				newUser.id( result[0].id() );
+				newUser.displayName = "Updated User";
 				newUser.displayName.should.not.equal(result[0].displayName);
 				
 				User.update(newUser, function(err, res) {
@@ -467,6 +472,7 @@ describe("User Model", function() {
 							newUser[field].should.equal(res[0][field]);
 						}
 					}
+					done();
 				});
 			});
 		});
