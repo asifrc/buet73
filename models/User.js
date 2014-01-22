@@ -88,6 +88,17 @@ function UserModel (obj, noHash) {
 			initObj.password = self.password;
 		}
 	}
+	
+	// CRUD accessors
+	self.register = function(cb) {
+		var err = null;
+		if (self.id() !== null)
+		{
+			err = "Registration Error: User already registered";
+			return respond(cb, err, [self]);
+		}
+		register(self, cb);
+	};
 }
 exports.Model = UserModel;
 
