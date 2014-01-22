@@ -35,7 +35,7 @@ exports.allFields = allFields;
 /**
 * Class: User object
 */
-function UserModel (obj) {
+function UserModel (obj, noHash) {
 	var self = this;
 	var _id =  null;
 	
@@ -69,16 +69,23 @@ function UserModel (obj) {
 		return ( self.password === hash(pw) );
 	};
 	
+	// Provides access to initialization object to monitor changes
+	var initObj = obj;
+	self.initObj = function() {
+		return initObj;
+	};
+	
 	if (obj.constructor === UserModel)
 	{
 		_id = obj.id();
 	}
 	else
 	{
-		if (typeof obj.password === "string" && obj.password.length > 0)
+		if (typeof noHash === "undefined" && typeof obj.password === "string" && obj.password.length > 0)
 		{
 			//Hash passed parameter if present and obj is not an instance of UserModel
 			self.password = hash(obj.password);
+			initObj.password = self.password;
 		}
 	}
 }
@@ -200,7 +207,7 @@ var parseUsers = function(result) {
 	var users = [];
 	for (var i=0; i<result.data.length; i++)
 	{
-		var user = new UserModel(result.data[i][0].data);
+		var user = new UserModel(result.data[i][0].data, true);
 		user.id(result.data[i][1]);
 		users.push(user);
 	}
@@ -231,3 +238,63 @@ var find = function(criteria, cb) {
 	});
 };
 exports.find = find;
+
+/**
+* Update a User
+*/
+var update = function(user, cb) {
+	var err = null;
+	
+	if (user.constructor !== UserModel)
+	{
+		err = "Update Error: not an instance of UserModel";
+		return respond(cb, err);
+	}
+	if (user.id() === null)
+	{
+		err = "Update Error: User must have an id";
+		return respond(cb, err);
+	}
+	
+	// Identify fields that have changed
+	var changed = [];
+	for (var field in user)
+	{
+		if (typeof user.initObj()[field] !== "undefined")
+		{
+			if (user.initObj()[field] !== user[field])
+			{
+				changed.push(field);
+			}
+		}
+		else
+		{
+			if (user[field] !== null && field !== "password")
+			{
+				changed.push(field);
+			}
+		}
+	}
+	
+	// Construct Cypher query
+	var cypher = "MATCH (u:User) WHERE id(u)="+user.id();
+	cypher += " SET u = {props}";
+	cypher += " RETURN u, id(u)";
+	//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
+	var query = {
+		"query": cypher,
+		"params": {
+			"props": user
+		}
+	};
+	//console.log("\n\nQUERY:\n\n", query);//DEBUG
+	neo(query, cb, function(err, result) {
+		var users = parseUsers(result);
+		if (users.length === 0)
+		{
+			err = "Update Error: User id not found";
+		}
+		return respond(cb, err, users);
+	}, true);
+};
+exports.update = update;
