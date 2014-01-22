@@ -35,14 +35,23 @@ exports.allFields = allFields;
 /**
 * Class: User object
 */
-function UserModel (obj) {
+function UserModel (obj, noHash) {
 	var self = this;
+	var _id =  null;
+	
 	obj = (typeof obj === "object") ? obj : {};
 	for (var i=0; i<allFields.length; i++)
 	{
 		var field = allFields[i];
 		self[field] = (typeof obj[field] === "undefined") ? null : obj[field];
 	}
+	
+	// Getter for _id
+	self.id = function(id) {
+		_id = (typeof id !== "undefined") ? id : _id;
+		return _id;
+	};
+	
 	// Make email lowercase
 	if (typeof self.email === "string")
 	{
@@ -59,11 +68,52 @@ function UserModel (obj) {
 	self.confirmPassword = function(pw) {
 		return ( self.password === hash(pw) );
 	};
-	//Hash passed parameter if present and obj is not an instance of UserModel
-	if (typeof obj.password === "string" && obj.password.length > 0 && obj.constructor !== UserModel)
+	
+	// Provides access to initialization object to monitor changes
+	var initObj = obj;
+	self.initObj = function() {
+		return initObj;
+	};
+	
+	if (obj.constructor === UserModel)
 	{
-		self.password = hash(obj.password);
+		_id = obj.id();
 	}
+	else
+	{
+		if (typeof noHash === "undefined" && typeof obj.password === "string" && obj.password.length > 0)
+		{
+			//Hash passed parameter if present and obj is not an instance of UserModel
+			self.password = hash(obj.password);
+			initObj.password = self.password;
+		}
+	}
+	
+	// CRUD accessors
+	self.register = function(cb) {
+		var err = null;
+		if (self.id() !== null)
+		{
+			err = "Registration Error: User already registered";
+			return respond(cb, err, [self]);
+		}
+		register(self, cb);
+	};
+	// A function to find yourself ;-)
+	self.find = function(cb) {
+		find(self, cb);
+	};
+	self.update = function(cb) {
+		if (self.id() === null)
+		{
+			err = "Update Error: User has no id";
+			return respond(cb, err, [self]);
+		}
+		update(self, cb);
+	};
+	self.remove = function(cb) {
+		remove(self, cb);
+	};
 }
 exports.Model = UserModel;
 
@@ -159,7 +209,7 @@ var register = function(userData, cb) {
 		cypher += "MERGE (c:Country { name: \""+user.country+"\" }) ";
 		cypher += "CREATE UNIQUE (u)-[:Studied]->(d) ";
 		cypher += "CREATE UNIQUE (u)-[:LivesIn]->(c) ";
-		cypher += "RETURN u";
+		cypher += "RETURN u, id(u)";
 		//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
 		var query = {
 			"query": cypher,
@@ -169,7 +219,8 @@ var register = function(userData, cb) {
 		};
 		//console.log("\n\nQUERY:\n\n", query);//DEBUG
 		neo(query, cb, function(err, result) {
-			return respond(cb, err, result);
+			var users = parseUsers(result);
+			return respond(cb, err, users);
 		});
 	});
 };
@@ -182,7 +233,8 @@ var parseUsers = function(result) {
 	var users = [];
 	for (var i=0; i<result.data.length; i++)
 	{
-		var user = new UserModel(result.data[i][0].data);
+		var user = new UserModel(result.data[i][0].data, true);
+		user.id(result.data[i][1]);
 		users.push(user);
 	}
 	return users;
@@ -193,6 +245,17 @@ var find = function(criteria, cb) {
 	var cypher = "MATCH (u:User) ";
 	var props = [];
 	
+	// Convert queries if ID is included
+	if (typeof criteria.id !== "undefined")
+	{
+		var id = (typeof criteria.id === "function") ? criteria.id() : criteria.id;
+		if (id !== null)
+		{
+			props.push("id(u)="+id+" ");
+		}
+		delete criteria.id;
+	}
+	
 	for (var property in criteria)
 	{
 		if (criteria[property] !== null && typeof criteria[property] !== "function")
@@ -201,7 +264,7 @@ var find = function(criteria, cb) {
 		}
 	}
 	cypher += (props.length>0) ? "WHERE "+props.join("AND ") : "";
-	cypher += "RETURN u";
+	cypher += "RETURN u, id(u)";
 	//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
 	var query = {
 		"query": cypher
@@ -212,3 +275,89 @@ var find = function(criteria, cb) {
 	});
 };
 exports.find = find;
+
+/**
+* Update a User
+*/
+var update = function(user, cb) {
+	var err = null;
+	
+	if (user.constructor !== UserModel)
+	{
+		err = "Update Error: not an instance of UserModel";
+		return respond(cb, err);
+	}
+	if (user.id() === null)
+	{
+		err = "Update Error: User must have an id";
+		return respond(cb, err);
+	}
+	
+	// Identify fields that have changed
+	var changed = [];
+	for (var field in user)
+	{
+		if (typeof user.initObj()[field] !== "undefined")
+		{
+			if (user.initObj()[field] !== user[field])
+			{
+				changed.push(field);
+			}
+		}
+		else
+		{
+			if (user[field] !== null && field !== "password")
+			{
+				changed.push(field);
+			}
+		}
+	}
+	
+	// Construct Cypher query
+	var cypher = "MATCH (u:User) WHERE id(u)="+user.id();
+	cypher += " SET u = {props}";
+	cypher += " RETURN u, id(u)";
+	//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
+	var query = {
+		"query": cypher,
+		"params": {
+			"props": user
+		}
+	};
+	//console.log("\n\nQUERY:\n\n", query);//DEBUG
+	neo(query, cb, function(err, result) {
+		var users = parseUsers(result);
+		if (users.length === 0)
+		{
+			err = "Update Error: User id not found";
+		}
+		return respond(cb, err, users);
+	}, true);
+};
+exports.update = update;
+
+/**
+* Delete a User
+*/
+var remove = function(user, cb) {
+	var err = null;
+	
+	if (user.constructor !== UserModel)
+	{
+		err = "Removal Error: invalid user format";
+		return respond(cb, err);
+	}
+	if (user.id() === null)
+	{
+		err = "Removal Error: invalid user id";
+		return respond(cb, err);
+	}
+	var cypher = "MATCH (u)-[r]-()";
+	cypher += " WHERE id(u)="+user.id();
+	cypher += " DELETE u,r";
+	var query = {"query": cypher};
+	neo(query, cb, function(error, result) {
+		return respond(cb, error, []);
+	});
+};
+exports.remove = remove;
