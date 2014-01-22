@@ -309,3 +309,29 @@ var update = function(user, cb) {
 	}, true);
 };
 exports.update = update;
+
+/**
+* Delete a User
+*/
+var remove = function(user, cb) {
+	var err = null;
+	
+	if (user.constructor !== UserModel)
+	{
+		err = "Removal Error: invalid user format";
+		return respond(cb, err);
+	}
+	if (user.id() === null)
+	{
+		err = "Removal Error: invalid user id";
+		return respond(cb, err);
+	}
+	var cypher = "MATCH (u)-[r]-()";
+	cypher += " WHERE id(u)="+user.id();
+	cypher += " DELETE u,r";
+	var query = {"query": cypher};
+	neo(query, cb, function(error, result) {
+		return respond(cb, error, []);
+	});
+};
+exports.remove = remove;

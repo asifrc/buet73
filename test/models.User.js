@@ -524,9 +524,9 @@ describe("User Model", function() {
 				User.remove(result[0], function(err, res) {
 					should.not.exist(err);
 					Array.isArray(res).should.be.ok;
-					res.length.should.equal(1);
+					res.length.should.equal(0);
 					User.find(result[0], function(e,r) {
-						hould.not.exist(e);
+						should.not.exist(e);
 						Array.isArray(r).should.be.ok;
 						r.length.should.equal(0);
 						done();
