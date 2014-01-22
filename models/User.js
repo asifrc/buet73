@@ -219,6 +219,17 @@ var find = function(criteria, cb) {
 	var cypher = "MATCH (u:User) ";
 	var props = [];
 	
+	// Convert queries if ID is included
+	if (typeof criteria.id !== "undefined")
+	{
+		var id = (typeof criteria.id === "function") ? criteria.id() : criteria.id;
+		if (id !== null)
+		{
+			props.push("id(u)="+id+" ");
+		}
+		delete criteria.id;
+	}
+	
 	for (var property in criteria)
 	{
 		if (criteria[property] !== null && typeof criteria[property] !== "function")

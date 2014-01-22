@@ -290,9 +290,6 @@ describe("User Model", function() {
 			var countDown = function(cb) {
 				if (--userCount <= 0)
 				{
-					tempUsers.map(function(el) {
-						delete el.cpassword;
-					});
 					done();
 				}
 				else
@@ -303,7 +300,6 @@ describe("User Model", function() {
 			var reg = function(cb) {
 				var user = new User.Model(validUser());
 				user.cpassword = "password";
-				tempUsers.push(user);
 				User.register(user, function(err, result) {
 					if (err)
 					{
@@ -311,6 +307,7 @@ describe("User Model", function() {
 					}
 					else
 					{
+						tempUsers.push(result[0]);
 						countDown(cb);
 					}
 				});
@@ -339,15 +336,15 @@ describe("User Model", function() {
 				done();
 			});
 		});
-		it("should return one user when searching by fbid", function(done) {
+		it("should return one user when searching by id", function(done) {
 			var criteria = {
-				fbid: tempUsers[0].fbid
+				id: tempUsers[0].id()
 			};
 			User.find(criteria, function(err, result) {
 				should.not.exist(err);
 				Array.isArray(result).should.be.ok;
 				result.length.should.equal(1);
-				result[0].fbid.should.equal(criteria.fbid);
+				result[0].id().should.equal(tempUsers[0].id());
 				done();
 			});
 		});
@@ -412,6 +409,29 @@ describe("User Model", function() {
 				done();
 			});
 		});
+		it("should take an empty UserModel object as a search parameter", function(done) {
+			var criteria = new User.Model();
+			criteria.displayName = tempUsers[1].displayName;
+			User.find(criteria, function(err, result) {
+				should.not.exist(err);
+				Array.isArray(result).should.be.ok;
+				result.length.should.be.greaterThan(0);
+				result[0].id().should.exist;
+				result[0].displayName.should.equal(tempUsers[1].displayName);
+				done();
+			});
+		});
+		it("should take a full UserModel object as a search parameter", function(done) {
+			var criteria = new User.Model(tempUsers[1]);
+			User.find(criteria, function(err, result) {
+				should.not.exist(err);
+				Array.isArray(result).should.be.ok;
+				result.length.should.equal(1);
+				result[0].id().should.exist;
+				result[0].id().should.equal(tempUsers[1].id());
+				done();
+			});
+		});
 	});
 	describe("Update", function() {
 		it("should return an error if not passed an instance of UserModel", function(done) {
@@ -440,7 +460,6 @@ describe("User Model", function() {
 			});
 		});
 		it("should return the saved user if successfully updated", function(done) {
-			//this.timeout(20000);
 			var user = new User.Model(validUser());
 			user.cpassword = validUser().password;
 			User.register(user, function(error, result) {
