@@ -457,6 +457,20 @@ describe("User Model", function() {
 				done();
 			});
 		});
+		describe("From UserModel", function() {
+			it("should return results from given properties when called on UserModel", function(done) {
+				var criteria = new User.Model();
+				criteria.displayName = tempUsers[1].displayName;
+				criteria.find(function(err, result) {
+					should.not.exist(err);
+					Array.isArray(result).should.be.ok;
+					result.length.should.be.greaterThan(0);
+					result[0].id().should.exist;
+					result[0].displayName.should.equal(tempUsers[1].displayName);
+					done();
+				});
+			});
+		});
 	});
 	describe("Update", function() {
 		it("should return an error if not passed an instance of UserModel", function(done) {
