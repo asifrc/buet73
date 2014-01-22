@@ -372,5 +372,19 @@ describe("User Model", function() {
 				done();
 			});
 		});
+		it("should populate the _id property of a UserModel object", function(done) {
+			var criteria = {
+				email: tempUsers[0].email
+			};
+			User.find(criteria, function(err, result) {
+				should.not.exist(err);
+				Array.isArray(result).should.be.ok;
+				result.length.should.equal(1);
+				result[0].email.should.equal(criteria.email);
+				result[0].should.be.an.instanceOf(User.Model);
+				result[0].id().should.exist;
+				done();
+			});
+		});
 	});
 });
