@@ -231,3 +231,12 @@ var find = function(criteria, cb) {
 	});
 };
 exports.find = find;
+
+/**
+* Update a User
+*/
+var update = function(user, cb) {
+	var err = null;
+	return respond(cb, err);
+};
+exports.update = update;

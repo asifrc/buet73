@@ -268,7 +268,7 @@ describe("User Model", function() {
 					done();
 				});
 			});
-			it("should return a UserModel object with _id populated when successfully registered", function(done) {
+			it("should return a UserModel object with _id populated", function(done) {
 				var user = new User.Model(validUser());
 				user.cpassword = validUser().password;
 				User.register(user, function(err, result) {
@@ -316,6 +316,9 @@ describe("User Model", function() {
 				});
 			};
 			reg(reg);
+		});
+		after(function(done) {
+			emptyDb(done);
 		});
 		it("should return an array", function(done) {
 			var criteria = {
@@ -407,6 +410,64 @@ describe("User Model", function() {
 				result[0].should.be.an.instanceOf(User.Model);
 				result[0].id().should.exist;
 				done();
+			});
+		});
+	});
+	describe("Update", function() {
+		it("should return an error if not passed an instance of UserModel", function(done) {
+			var user = {};
+			User.update(user, function(err, result) {
+				err.should.exist;
+				done();
+			});
+		});
+		it("should return an error if User's _id is null", function(done) {
+			var user = new User.Model();
+			User.update(user, function(err, result) {
+				err.should.exist;
+				done();
+			});
+		});
+		it("should return an error if User's _id is not found", function(done) {
+			var user = new User.Model();
+			user.id("0");
+			User.update(user, function(err, result) {
+				err.should.exist;
+				done();
+			});
+		});
+		it("should return the saved user if successfully updated", function(done) {
+			var user = new User.Model(validUser());
+			user.cpassword = validUser().password;
+			User.register(user, function(error, result) {
+				should.not.exist(error);
+				result.should.exist;
+				Array.isArray(result).should.be.ok;
+				result.length.should.equal(1);
+				result[0].should.be.an.instanceOf(User.Model);
+				result[0].id().should.exist;
+				
+				var newUser = new User.Model(validUser());
+				newUser.id( result[0].id() );
+				newUser.displayName.should.not.equal(result[0].displayName);
+				
+				User.update(newUser, function(err, res) {
+					should.not.exist(err);
+					res.should.exist;
+					Array.isArray(res).should.be.ok;
+					res.length.should.equal(1);
+					res[0].should.be.an.instanceOf(User.Model);
+					res[0].id().should.exist;
+					res[0].id().should.equal(newUser.id());
+					
+					for (var field in  newUser)
+					{
+						if (typeof newUser[field] !== "function" && newUser[field] !== null)
+						{
+							newUser[field].should.equal(res[0][field]);
+						}
+					}
+				});
 			});
 		});
 	});
