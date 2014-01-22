@@ -253,7 +253,30 @@ describe("User Model", function() {
 				user.cpassword = validUser().password;
 				User.register(user, function(err, result) {
 					should.not.exist(err);
-					result.data.should.exist;
+					done();
+				});
+			});
+			it("should return an array containing one UserModel object", function(done) {
+				var user = new User.Model(validUser());
+				user.cpassword = validUser().password;
+				User.register(user, function(err, result) {
+					should.not.exist(err);
+					result.should.exist;
+					Array.isArray(result).should.be.ok;
+					result.length.should.equal(1);
+					result[0].should.be.an.instanceOf(User.Model);
+					done();
+				});
+			});
+			it("should return a UserModel object with _id populated when successfully registered", function(done) {
+				var user = new User.Model(validUser());
+				user.cpassword = validUser().password;
+				User.register(user, function(err, result) {
+					result.should.exist;
+					Array.isArray(result).should.be.ok;
+					result.length.should.equal(1);
+					result[0].should.be.an.instanceOf(User.Model);
+					result[0].id().should.exist;
 					done();
 				});
 			});
