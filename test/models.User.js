@@ -597,5 +597,30 @@ describe("User Model", function() {
 				});
 			});
 		});
+		describe("From UserModel", function() {
+			it("should remove an existing user when called on the user", function(done) {
+				var user = new User.Model(validUser());
+				user.cpassword = validUser().password;
+				User.register(user, function(error, result) {
+					should.not.exist(error);
+					result.should.exist;
+					Array.isArray(result).should.be.ok;
+					result.length.should.equal(1);
+					result[0].should.be.an.instanceOf(User.Model);
+					result[0].id().should.exist;
+					result[0].remove(function(err, res) {
+						should.not.exist(err);
+						Array.isArray(res).should.be.ok;
+						res.length.should.equal(0);
+						User.find(result[0], function(e,r) {
+							should.not.exist(e);
+							Array.isArray(r).should.be.ok;
+							r.length.should.equal(0);
+							done();
+						});
+					});
+				});
+			});
+		});
 	});
 });
