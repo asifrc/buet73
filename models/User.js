@@ -99,6 +99,14 @@ function UserModel (obj, noHash) {
 		}
 		register(self, cb);
 	};
+	self.update = function(cb) {
+		if (self.id() === null)
+		{
+			err = "Update Error: User has no id";
+			return respond(cb, err, [self]);
+		}
+		update(self, cb);
+	};
 }
 exports.Model = UserModel;
 
