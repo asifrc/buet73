@@ -83,23 +83,30 @@ describe("User Model", function() {
 		emptyDb(done);
 	});
 	describe("UserModel", function() {
-		it("should create a new User object", function() {
-			var user = new User.Model();
-			user.should.be.an.instanceOf(User.Model);
-		});
-		it("should create a new User object from another User object", function() {
-			var obj = validUser();
-			var userA = new User.Model(obj);
-			userA.should.be.an.instanceOf(User.Model);
-			var userB = new User.Model(userA);
-			userB.should.be.an.instanceOf(User.Model);
-			for (var field in userA) 
-			{
-				if (userA[field] !== null && typeof userB[field] !== "function")
+		describe("Initialization", function() {
+			it("should create a new User object", function() {
+				var user = new User.Model();
+				user.should.be.an.instanceOf(User.Model);
+			});
+			it("should create a new User object from another User object", function() {
+				var obj = validUser();
+				var userA = new User.Model(obj);
+				userA.should.be.an.instanceOf(User.Model);
+				var userB = new User.Model(userA);
+				userB.should.be.an.instanceOf(User.Model);
+				for (var field in userA) 
 				{
-					userA[field].should.equal(userB[field]);
+					if (userA[field] !== null && typeof userB[field] !== "function")
+					{
+						userA[field].should.equal(userB[field]);
+					}
 				}
-			}
+			});
+			it("should accept and return a valid user object as a parameter", function() {
+				var obj = validUser();
+				var user = new User.Model(obj);
+				user.should.be.an.instanceOf(User.Model);
+			});
 		});
 		describe("id", function() {
 			it("should return a null value for _id when no _id has been set", function() {
@@ -137,11 +144,6 @@ describe("User Model", function() {
 			{
 				fieldTest(User.allFields[i]);
 			}
-		});
-		it("should accept and return a valid user object as a parameter", function() {
-			var obj = validUser();
-			var user = new User.Model(obj);
-			user.should.be.an.instanceOf(User.Model);
 		});
 	});
 	describe("Register", function() {
@@ -272,6 +274,29 @@ describe("User Model", function() {
 				var user = new User.Model(validUser());
 				user.cpassword = validUser().password;
 				User.register(user, function(err, result) {
+					result.should.exist;
+					Array.isArray(result).should.be.ok;
+					result.length.should.equal(1);
+					result[0].should.be.an.instanceOf(User.Model);
+					result[0].id().should.exist;
+					done();
+				});
+			});
+		});
+		describe("From UserModel", function() {
+			it("should return an error if the user already has an id", function(done) {
+				var user = new User.Model(validUser());
+				user.cpassword = validUser().password;
+				user.id("1234");
+				user.register(function(err, result) {
+					err.should.exist;
+					done();
+				});
+			});
+			it("should register the user when called on the user object", function(done) {
+				var user = new User.Model(validUser());
+				user.cpassword = validUser().password;
+				user.register(function(err, result) {
 					result.should.exist;
 					Array.isArray(result).should.be.ok;
 					result.length.should.equal(1);
