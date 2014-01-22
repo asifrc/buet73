@@ -200,6 +200,7 @@ var parseUsers = function(result) {
 	for (var i=0; i<result.data.length; i++)
 	{
 		var user = new UserModel(result.data[i][0].data);
+		user.id(result.data[i][1]);
 		users.push(user);
 	}
 	return users;
@@ -218,7 +219,7 @@ var find = function(criteria, cb) {
 		}
 	}
 	cypher += (props.length>0) ? "WHERE "+props.join("AND ") : "";
-	cypher += "RETURN u";
+	cypher += "RETURN u, id(u)";
 	//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
 	var query = {
 		"query": cypher
