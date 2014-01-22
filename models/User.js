@@ -176,7 +176,7 @@ var register = function(userData, cb) {
 		cypher += "MERGE (c:Country { name: \""+user.country+"\" }) ";
 		cypher += "CREATE UNIQUE (u)-[:Studied]->(d) ";
 		cypher += "CREATE UNIQUE (u)-[:LivesIn]->(c) ";
-		cypher += "RETURN u";
+		cypher += "RETURN u, id(u)";
 		//console.log("\n\nQUERY:\n\n", cypher);//DEBUG
 		var query = {
 			"query": cypher,
@@ -186,7 +186,8 @@ var register = function(userData, cb) {
 		};
 		//console.log("\n\nQUERY:\n\n", query);//DEBUG
 		neo(query, cb, function(err, result) {
-			return respond(cb, err, result);
+			var users = parseUsers(result);
+			return respond(cb, err, users);
 		});
 	});
 };
