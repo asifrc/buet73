@@ -99,6 +99,10 @@ function UserModel (obj, noHash) {
 		}
 		register(self, cb);
 	};
+	// A function to find yourself ;-)
+	self.find = function(cb) {
+		find(self, cb);
+	};
 	self.update = function(cb) {
 		if (self.id() === null)
 		{
