@@ -47,7 +47,8 @@ function UserModel (obj) {
 	}
 	
 	// Getter for _id
-	self.getID = function() {
+	self.id = function(id) {
+		_id = (typeof id !== "undefined") ? id : _id;
 		return _id;
 	};
 	
@@ -70,7 +71,7 @@ function UserModel (obj) {
 	
 	if (obj.constructor === UserModel)
 	{
-		_id = obj.getID();
+		_id = obj.id();
 	}
 	else
 	{

@@ -101,9 +101,17 @@ describe("User Model", function() {
 				}
 			}
 		});
-		it("should return a null value for _id when no _id has been set", function() {
-			var user = new User.Model();
-			should(user.getID()).equal(null);
+		describe("id", function() {
+			it("should return a null value for _id when no _id has been set", function() {
+				var user = new User.Model();
+				should(user.id()).equal(null);
+			});
+			it("should return the new value for _id set by the setter", function() {
+				var user = new User.Model();
+				var id = "1234";
+				user.id(id).should.equal(id);
+				user.id().should.equal(id);
+			});
 		});
 		var fieldTest = function(field) {
 			it("should contain a `"+field+"` property", function() {
@@ -124,10 +132,12 @@ describe("User Model", function() {
 				}
 			});
 		};
-		for (var i=0; i<User.allFields.length; i++)
-		{
-			fieldTest(User.allFields[i]);
-		}
+		describe("Required Fields", function() {
+			for (var i=0; i<User.allFields.length; i++)
+			{
+				fieldTest(User.allFields[i]);
+			}
+		});
 		it("should accept and return a valid user object as a parameter", function() {
 			var obj = validUser();
 			var user = new User.Model(obj);
