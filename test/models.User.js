@@ -520,6 +520,44 @@ describe("User Model", function() {
 				});
 			});
 		});
+		describe("From UserModel", function() {
+			it("should return an error if the user has no id", function(done) {
+				var user = new User.Model(validUser());
+				user.update(function(err, result) {
+					err.should.exist;
+					done();
+				});
+			});
+			it("should update the user when called on the UserModel object", function(done) {
+				var user = new User.Model(validUser());
+				user.cpassword = validUser().password;
+				User.register(user, function(error, result) {
+					should.not.exist(error);
+					result.should.exist;
+					Array.isArray(result).should.be.ok;
+					result.length.should.equal(1);
+					result[0].should.be.an.instanceOf(User.Model);
+					result[0].id().should.exist;
+					
+					var newUser = new User.Model(validUser());
+					newUser.id( result[0].id() );
+					newUser.displayName = "Updated User";
+					newUser.displayName.should.not.equal(result[0].displayName);
+					
+					newUser.update(function(err, res) {
+						should.not.exist(err);
+						res.should.exist;
+						Array.isArray(res).should.be.ok;
+						res.length.should.equal(1);
+						res[0].should.be.an.instanceOf(User.Model);
+						res[0].id().should.exist;
+						res[0].id().should.equal(newUser.id());
+						res[0].displayName.should.equal(newUser.displayName);
+						done();
+					});
+				});
+			});
+		});
 	});
 	describe("Remove", function() {
 		it("should return an error if parameter is not a UserModel object", function(done) {
