@@ -107,6 +107,9 @@ function UserModel (obj, noHash) {
 		}
 		update(self, cb);
 	};
+	self.remove = function(cb) {
+		remove(self, cb);
+	};
 }
 exports.Model = UserModel;
 
