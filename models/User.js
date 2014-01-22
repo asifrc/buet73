@@ -37,12 +37,20 @@ exports.allFields = allFields;
 */
 function UserModel (obj) {
 	var self = this;
+	var _id =  null;
+	
 	obj = (typeof obj === "object") ? obj : {};
 	for (var i=0; i<allFields.length; i++)
 	{
 		var field = allFields[i];
 		self[field] = (typeof obj[field] === "undefined") ? null : obj[field];
 	}
+	
+	// Getter for _id
+	self.getID = function() {
+		return _id;
+	};
+	
 	// Make email lowercase
 	if (typeof self.email === "string")
 	{
@@ -59,10 +67,18 @@ function UserModel (obj) {
 	self.confirmPassword = function(pw) {
 		return ( self.password === hash(pw) );
 	};
-	//Hash passed parameter if present and obj is not an instance of UserModel
-	if (typeof obj.password === "string" && obj.password.length > 0 && obj.constructor !== UserModel)
+	
+	if (obj.constructor === UserModel)
 	{
-		self.password = hash(obj.password);
+		_id = obj.getID();
+	}
+	else
+	{
+		if (typeof obj.password === "string" && obj.password.length > 0)
+		{
+			//Hash passed parameter if present and obj is not an instance of UserModel
+			self.password = hash(obj.password);
+		}
 	}
 }
 exports.Model = UserModel;

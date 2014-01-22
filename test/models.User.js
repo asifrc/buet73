@@ -101,6 +101,10 @@ describe("User Model", function() {
 				}
 			}
 		});
+		it("should return a null value for _id when no _id has been set", function() {
+			var user = new User.Model();
+			should(user.getID()).equal(null);
+		});
 		var fieldTest = function(field) {
 			it("should contain a `"+field+"` property", function() {
 				var user = new User.Model();
