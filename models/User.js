@@ -4,14 +4,12 @@
 * User Model
 */
 
+var db = require('./db');
+var respond = db.respond;
+var neo = db.neo;
+
 var crypto = require('crypto');
 var rest = require('restler');
-var db_url = process.env.NEO4J_URL || 'http://localhost:7474';
-db_url += "/db/data/cypher";
-exports.db_url = function(url) {
-	db_url = url || db_url;
-	return db_url;
-};
 
 var reqFields = function() { return [
 	'firstName',
@@ -116,33 +114,6 @@ function UserModel (obj, noHash) {
 	};
 }
 exports.Model = UserModel;
-
-/**
-* Uniform method to call callbacks for exported functions
-*/
-var respond = function (callback, err, result) {
-	err = err || null;
-	if (typeof callback === "function")
-	{
-		callback(err, result);
-	}
-	return { err: err, result: result };
-};
-
-/**
-* Make a Cypher Query to Neo4j
-*/
-var neo = function(query, superCb, cb) {
-	var err = null;
-	rest.postJson(db_url, query).on('complete', function(result, response) {
-		if (response.statusCode !== 200)
-		{
-			err = "Registration Error: received "+response.statusCode+" response";
-			return respond(superCb, err);
-		}
-		return respond(cb, err, result);
-	});
-};
 
 /**
 * Create a User
