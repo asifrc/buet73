@@ -1,0 +1,6 @@
+// Bismillah
+
+/**
+* Post Model
+*/
+
