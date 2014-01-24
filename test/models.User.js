@@ -4,14 +4,11 @@
 * Tests for models/User.js
 */
 
+var db = require('../models/db');
 var User = require('../models/User');
 
 var should = require("should"),
 	assert = require("assert");
-
-var rest = require('restler');
-var db_url = process.env.NEO4J_URL || 'http://localhost:7474';
-db_url += "/db/data/cypher";
 
 var strToTitle = function(str) {
 	return str.toLowerCase().replace(/(?:^.)|(?:\s.)/g, function(letter) { return letter.toUpperCase(); });
@@ -56,25 +53,11 @@ var validUser = function() {
 
 var emptyDb = function(cb) {
 	var query = {"query": "MATCH (n)-[r]-() DELETE n,r"};
-	rest.postJson(db_url, query).on('complete', function(data, response) {
-		if (response.statusCode === 200)
-		{
-			query = {"query": "MATCH (n) DELETE n"};
-			rest.postJson(db_url, query).on('complete', function(data, response) {
-				if (response.statusCode === 200)
-				{
-					cb();
-				}
-				else
-				{
-					cb(response.statusCode);
-				}
-			});
-		}
-		else
-		{
-			cb(response.statusCode);
-		}
+	db.neo(query, cb, function(data, response) {
+		query = {"query": "MATCH (n) DELETE n"};
+		db.neo(query, cb, function(data, response) {
+			cb();
+		});
 	});
 };
 
