@@ -220,34 +220,7 @@ describe("User Model", function() {
 	describe("Find", function() {
 		var tempUsers = [];
 		before(function(done) {
-			this.timeout(20000); // Extended max timeout for Travis CI
-			var userCount = 10;
-			var countDown = function(cb) {
-				if (--userCount <= 0)
-				{
-					done();
-				}
-				else
-				{
-					cb(cb);
-				}
-			};
-			var reg = function(cb) {
-				var user = new User.Model(helper.validUser());
-				user.cpassword = "password";
-				User.register(user, function(err, result) {
-					if (err)
-					{
-						done(err);
-					}
-					else
-					{
-						tempUsers.push(result[0]);
-						countDown(cb);
-					}
-				});
-			};
-			reg(reg);
+			helper.createUsers(10, tempUsers, done);
 		});
 		after(function(done) {
 			helper.emptyDb(done);

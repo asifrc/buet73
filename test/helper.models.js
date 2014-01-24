@@ -6,6 +6,7 @@
 
 
 var db = require('../models/db');
+var User = require('../models/User');
 
 var strToTitle = function(str) {
 	return str.toLowerCase().replace(/(?:^.)|(?:\s.)/g, function(letter) { return letter.toUpperCase(); });
@@ -60,9 +61,41 @@ var emptyDb = function(cb) {
 	});
 };
 
+var createUsers = function(userCount, tempUsers, done) {
+	userCount = userCount || 1;
+	tempUsers = tempUsers || [];
+	var countDown = function(cb) {
+		if (--userCount <= 0)
+		{
+			done();
+		}
+		else
+		{
+			cb(cb);
+		}
+	};
+	var reg = function(cb) {
+		var user = new User.Model(validUser());
+		user.cpassword = "password";
+		User.register(user, function(err, result) {
+			if (err)
+			{
+				done(err);
+			}
+			else
+			{
+				tempUsers.push(result[0]);
+				countDown(cb);
+			}
+		});
+	};
+	reg(reg);
+};
+
 module.exports = {
 	strToTitle: strToTitle,
 	validUser: validUser,
-	emptyDb: emptyDb
+	emptyDb: emptyDb,
+	createUsers: createUsers
 };
 	
