@@ -5,8 +5,13 @@
 */
 
 var rest = require('restler');
-var db_url = process.env.NEO4J_URL || 'http://localhost:7474';
-db_url += "/db/data/cypher";
+
+var neo4j_url = process.env.NEO4J_URL || 'http://localhost:7474';
+neo4j_url += "/db/data/cypher";
+exports.neo4j_url = function(url) {
+	neo4j_url = url || neo4j_url;
+	return neo4j_url;
+};
 
 /**
 * Uniform method to call callbacks for exported functions
@@ -26,10 +31,10 @@ exports.respond = respond;
 */
 var neo = function(query, superCb, cb) {
 	var err = null;
-	rest.postJson(db_url, query).on('complete', function(result, response) {
+	rest.postJson(neo4j_url, query).on('complete', function(result, response) {
 		if (response.statusCode !== 200)
 		{
-			err = "Registration Error: received "+response.statusCode+" response";
+			err = "Database Error: received "+response.statusCode+" response";
 			return respond(superCb, err);
 		}
 		return respond(cb, err, result);
