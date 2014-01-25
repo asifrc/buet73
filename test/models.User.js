@@ -14,6 +14,9 @@ describe("User Model", function() {
 	before(function(done) {
 		helper.emptyDb(done);
 	});
+	after(function(done) {
+		helper.emptyDb(done);
+	});
 	describe("UserModel", function() {
 		describe("Initialization", function() {
 			it("should create a new User object", function() {
