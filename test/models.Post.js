@@ -12,15 +12,15 @@ var should = require("should"),
 	assert = require("assert");
 
 describe("Post Model", function() {
+	var content, owner, ownerId;
+	before(function() {
+		content = "This is a post.";
+		owner = new User.Model();
+		ownerId = "1234";
+		owner.id(ownerId);
+	});
 	describe("PostModel Class", function() {
 		describe("Initialization", function() {
-			var content, owner, ownerId;
-			before(function() {
-				content = "This is a post.";
-				owner = new User.Model();
-				ownerId = "1234";
-				owner.id(ownerId);
-			});
 			it("should create a Post object", function() {
 				var post = new Post.Model();
 				post.should.be.an.instanceof(Post.Model);
@@ -46,6 +46,17 @@ describe("Post Model", function() {
 				post.content.should.equal(content);
 				post.owner.should.be.an.instanceOf(User.Model);
 				post.owner.id().should.equal(ownerId);
+			});
+		});
+		describe("ID", function() {
+			it("should return a null value for _id when no _id has been set", function() {
+				var post = new Post.Model();
+				should(post.id()).equal(null);
+			});
+			it("should return the new value for _id set by the setter", function() {
+				var post = new Post.Model();
+				post.id(ownerId).should.equal(ownerId);
+				post.id().should.equal(ownerId);
 			});
 		});
 	});

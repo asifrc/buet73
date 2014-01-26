@@ -43,7 +43,7 @@ describe("User Model", function() {
 				user.should.be.an.instanceOf(User.Model);
 			});
 		});
-		describe("id", function() {
+		describe("ID", function() {
 			it("should return a null value for _id when no _id has been set", function() {
 				var user = new User.Model();
 				should(user.id()).equal(null);
