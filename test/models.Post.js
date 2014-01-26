@@ -47,6 +47,11 @@ describe("Post Model", function() {
 				post.owner.should.be.an.instanceOf(User.Model);
 				post.owner.id().should.equal(ownerId);
 			});
+			it("should ignore owner if in an invalid format", function() {
+				var post = new Post.Model(content, {});
+				post.content.should.equal(content);
+				should.not.exist(post.owner);
+			});
 		});
 		describe("ID", function() {
 			it("should return a null value for _id when no _id has been set", function() {

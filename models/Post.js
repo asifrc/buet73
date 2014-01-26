@@ -74,6 +74,5 @@ var create = function(post, cb) {
 		err = "Post Creation Error: owner id missing";
 		return respond(cb, err);
 	}
-	return respond(cb, err);
 };
 exports.create = create;
