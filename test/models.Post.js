@@ -60,4 +60,48 @@ describe("Post Model", function() {
 			});
 		});
 	});
+	describe("Create", function() {
+		describe("Validation", function() {
+			it("should return an error if the post parameter is not a Post object", function(done) {
+				var post = {};
+				Post.create(post, function(err, res) {
+					err.should.exist;
+					done();
+				});
+			});
+			it("should return an error if the content property is null", function(done) {
+				var post = new Post.Model();
+				Post.create(post, function(err, res) {
+					err.should.exist;
+					done();
+				});
+			});
+			it("should return an error if the post owner is null", function(done) {
+				var post = new Post.Model();
+				post.content = content;
+				Post.create(post, function(err, res) {
+					err.should.exist;
+					done();
+				});
+			});
+			it("should return an error if the post owner is not a User object", function(done) {
+				var post = new Post.Model();
+				post.content = content;
+				post.owner = {};
+				Post.create(post, function(err, res) {
+					err.should.exist;
+					done();
+				});
+			});
+			it("should return an error if the post owner's id is not set", function(done) {
+				var post = new Post.Model();
+				post.content = content;
+				post.owner = new User.Model();
+				Post.create(post, function(err, res) {
+					err.should.exist;
+					done();
+				});
+			});
+		});
+	});
 });

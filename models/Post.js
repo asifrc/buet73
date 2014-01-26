@@ -4,6 +4,9 @@
 * Post Model
 */
 
+var db = require('./db');
+var respond = db.respond;
+
 var User = require('./User');
 
 var PostModel = function(content, owner) {
@@ -37,3 +40,40 @@ var PostModel = function(content, owner) {
 	};
 };
 exports.Model = PostModel;
+
+var create = function(post, cb) {
+	var err = null;
+	
+	// Validation
+	if (post.constructor !== PostModel)
+	{
+		err = "Post Creation Error: not a post object";
+		return respond(cb, err);
+	}
+	if (post.content === null)
+	{
+		err = "Post Creation Error: content missing";
+		return respond(cb, err);
+	}
+	
+	if (post.owner === null)
+	{
+		err = "Post Creation Error: owner missing";
+		return respond(cb, err);
+	}
+	else
+	{
+		if (post.owner.constructor !== User.Model)
+		{
+			err = "Post Creation Error: owner not a user object";
+			return respond(cb, err);
+		}
+	}
+	if (post.owner.id() === null)
+	{
+		err = "Post Creation Error: owner id missing";
+		return respond(cb, err);
+	}
+	return respond(cb, err);
+};
+exports.create = create;
