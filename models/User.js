@@ -116,6 +116,20 @@ function UserModel (obj, noHash) {
 exports.Model = UserModel;
 
 /**
+* Parse a query response into User Objects
+*/
+var parseUsers = function(result) {
+	var users = [];
+	for (var i=0; i<result.data.length; i++)
+	{
+		var user = new UserModel(result.data[i][0].data, true);
+		user.id(result.data[i][1]);
+		users.push(user);
+	}
+	return users;
+};
+
+/**
 * Create a User
 */
 var register = function(userData, cb) {
@@ -200,16 +214,6 @@ exports.register = register;
 /**
 * Retrieve a User
 */
-var parseUsers = function(result) {
-	var users = [];
-	for (var i=0; i<result.data.length; i++)
-	{
-		var user = new UserModel(result.data[i][0].data, true);
-		user.id(result.data[i][1]);
-		users.push(user);
-	}
-	return users;
-};
 var find = function(criteria, cb) {
 	var err = null;
 	

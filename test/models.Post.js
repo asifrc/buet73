@@ -31,7 +31,7 @@ describe("Post Model", function() {
 						users = res;
 						Array.isArray(users).should.be.ok;
 						users.length.should.equal(5);
-						users[0].should.be.an.instanceof(User.Model);
+						users[0].should.be.an.instanceOf(User.Model);
 						users[0].id().should.exist;
 						owner = users[0];
 						ownerId = owner.id();
@@ -150,6 +150,7 @@ describe("Post Model", function() {
 					Array.isArray(result).should.be.ok;
 					result.length.should.equal(1);
 					result[0].should.be.an.instanceOf(Post.Model);
+					result[0].owner.should.be.an.instanceOf(User.Model);
 					done();
 				});
 			});

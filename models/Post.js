@@ -9,6 +9,9 @@ var respond = db.respond;
 
 var User = require('./User');
 
+/**
+* Class: Post object
+*/
 var PostModel = function(content, owner) {
 	var self = this;
 	var _id = null;
@@ -42,6 +45,26 @@ var PostModel = function(content, owner) {
 };
 exports.Model = PostModel;
 
+/**
+* Parse a query response into a populated Post object
+*/
+var parsePosts = function(result) {
+	var posts = [];
+	for (var i=0; i<result.data.length; i++)
+	{
+		var post = new PostModel();
+		post.id(result.data[i][1]);
+		post.content = result.data[i][0].data.content;
+		post.owner = new User.Model(result.data[i][2].data);
+		post.access = result.data[i][0].data.access;
+		posts.push(post);
+	}
+	return posts;
+};
+
+/**
+* Create a Post
+*/
 var create = function(post, cb) {
 	var err = null;
 	
@@ -91,13 +114,13 @@ var create = function(post, cb) {
 	matches.push("MATCH (o:User) WHERE id(o)="+post.owner.id()+" ");
 	cypher += "CREATE (p:Post { props } ) ";
 	cypher += "CREATE (o)-[:Posted { ts: "+ts+" } ]->(p) ";
-	if (post.access !== "Public")
+	if (post.access === "Public")
 	{
 		matches.push("MATCH (a:Access) WHERE a.level=\"Public\" ");
 		cypher += "CREATE UNIQUE (a)-[:CanSee{ ts: "+ts+" } ]->(p) ";
 	}
 	// TODO: Match & Create CanSee relationships with tagged users
-	cypher += "Return p,o";
+	cypher += "Return p,id(p),o";
 	var query = {
 		"query": matches.join("")+cypher,
 		"params": {
@@ -105,7 +128,8 @@ var create = function(post, cb) {
 		}
 	};
 	db.neo(query, cb, function(err, res) {
-		return respond(cb, err);
+		var posts = parsePosts(res);
+		return respond(cb, err, posts);
 	});
 	
 };
