@@ -18,6 +18,7 @@ var PostModel = function(content, owner) {
 	self.content = null;
 	self.owner = null;
 	self.access = "Private";
+	self.tags = [];
 	
 	// Assign properties from parameters
 	if (typeof content !== "undefined")

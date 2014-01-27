@@ -97,7 +97,11 @@ describe("Post Model", function() {
 				post.access = "Public";
 				post.access.should.equal("Public");
 			});
-			
+			it("should have a tags property that is an array", function() {
+				var post = new Post.Model();
+				post.tags.should.exist;
+				Array.isArray(post.tags).should.be.ok;
+			});
 		});
 	});
 	describe("Create", function() {
@@ -144,6 +148,7 @@ describe("Post Model", function() {
 		describe("Valid Post", function() {
 			it("should return an array containing one PostModel object", function(done) {
 				var post = helper.samplePost(owner);
+				post.tags = 
 				Post.create(post, function(err, result) {
 					should.not.exist(err);
 					result.should.exist;
@@ -151,6 +156,20 @@ describe("Post Model", function() {
 					result.length.should.equal(1);
 					result[0].should.be.an.instanceOf(Post.Model);
 					result[0].owner.should.be.an.instanceOf(User.Model);
+					done();
+				});
+			});
+			it("should contain tagged User objects in the PostModel response", function(done) {
+				var post = helper.samplePost(owner);
+				post.tags.push(users[1]);
+				post.tags.push(users[2]);
+				Post.create(post, function(err, result) {
+					should.not.exist(err);
+					result.should.exist;
+					Array.isArray(result[0].tags).should.be.ok;
+					result[0].tags.length.should.equal(2);
+					result[0].tags[0].should.be.an.instanceOf(User.Model);
+					result[0].tags[0].id().should.exist;
 					done();
 				});
 			});
