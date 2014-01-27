@@ -6,6 +6,8 @@
 
 
 var db = require('../models/db');
+var respond = db.respond;
+
 var User = require('../models/User');
 var Post = require('../models/Post');
 
@@ -103,6 +105,13 @@ var createUsers = function(userCount, tempUsers, done) {
 var samplePost = function(owner) {
 	return new Post.Model("This is a test Post.", owner);
 };
+
+var createPublicNode = function(cb) {
+	var cypher = "MERGE (a:Access { level: \"Public\" } ) RETURN a";
+	db.neo({ query: cypher }, cb, function(err, res) {
+		respond(cb, err, res);
+	});
+};
 	
 
 module.exports = {
@@ -110,6 +119,7 @@ module.exports = {
 	validUser: validUser,
 	samplePost: samplePost,
 	emptyDb: emptyDb,
-	createUsers: createUsers
+	createUsers: createUsers,
+	createPublicNode: createPublicNode
 };
 	

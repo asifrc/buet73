@@ -15,22 +15,28 @@ describe("Post Model", function() {
 	var content, owner, ownerId;
 	var users = [];
 	before(function(done) {
-		content = "This is a post.";
+		content = helper.samplePost().content;
 		helper.emptyDb(function() {
-			helper.createUsers(5, users, function(err) {
-				if (err)
+			helper.createPublicNode(function(error, res) {
+				if (error)
 				{
-					done(err);
+					done(error);
 				}
-				User.find({}, function(err, res) {
-					users = res;
-					Array.isArray(users).should.be.ok;
-					users.length.should.equal(5);
-					users[0].should.be.an.instanceof(User.Model);
-					users[0].id().should.exist;
-					owner = users[0];
-					ownerId = owner.id();
-					done();
+				helper.createUsers(5, users, function(err) {
+					if (err)
+					{
+						done(err);
+					}
+					User.find({}, function(err, res) {
+						users = res;
+						Array.isArray(users).should.be.ok;
+						users.length.should.equal(5);
+						users[0].should.be.an.instanceof(User.Model);
+						users[0].id().should.exist;
+						owner = users[0];
+						ownerId = owner.id();
+						done();
+					});
 				});
 			});
 		});
@@ -69,8 +75,13 @@ describe("Post Model", function() {
 				post.content.should.equal(content);
 				should.not.exist(post.owner);
 			});
+			it("should set the access property to 'Private' by default", function() {
+				var post = new Post.Model();
+				post.access.should.exist;
+				post.access.should.equal("Private");
+			});
 		});
-		describe("ID", function() {
+		describe("Properties", function() {
 			it("should return a null value for _id when no _id has been set", function() {
 				var post = new Post.Model();
 				should(post.id()).equal(null);
@@ -80,6 +91,13 @@ describe("Post Model", function() {
 				post.id(ownerId).should.equal(ownerId);
 				post.id().should.equal(ownerId);
 			});
+			it("should allow access to be set directly", function() {
+				var post = new Post.Model();
+				post.access.should.equal("Private");
+				post.access = "Public";
+				post.access.should.equal("Public");
+			});
+			
 		});
 	});
 	describe("Create", function() {

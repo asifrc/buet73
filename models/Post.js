@@ -14,6 +14,7 @@ var PostModel = function(content, owner) {
 	var _id = null;
 	self.content = null;
 	self.owner = null;
+	self.access = "Private";
 	
 	// Assign properties from parameters
 	if (typeof content !== "undefined")
@@ -74,5 +75,17 @@ var create = function(post, cb) {
 		err = "Post Creation Error: owner id missing";
 		return respond(cb, err);
 	}
+	
+	var ts = new Date().getTime();
+	/*
+	// Build Cyhper Query
+	var cypher = "MATCH (o:User) WHERE id(o)="+post.owner.id()+" ";
+	cypher += "CREATE (p:Post { props } ) ";
+	cypher += "CREATE (o)-[:Posted { ts: "+ts+" }]->(p) ";
+	if (post.access === "Public")
+	{
+		cypher += "MATCH (a:Access) WHERE a.level=\"Public\"
+	}
+	console.log(cypher);*/
 };
 exports.create = create;
