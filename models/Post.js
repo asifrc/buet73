@@ -19,6 +19,7 @@ var PostModel = function(content, owner) {
 	self.owner = null;
 	self.access = "Private";
 	self.tags = [];
+	self.ts = null;
 	
 	// Assign properties from parameters
 	if (typeof content !== "undefined")
@@ -58,6 +59,7 @@ var parsePosts = function(result) {
 		post.content = result.data[i][0].data.content;
 		post.owner = new User.Model(result.data[i][2].data);
 		post.access = result.data[i][0].data.access;
+		post.ts = result.data[i][0].data.ts;
 		posts.push(post);
 	}
 	return posts;
@@ -113,15 +115,41 @@ var create = function(post, cb) {
 	var matches = [];
 	var cypher = "";
 	matches.push("MATCH (o:User) WHERE id(o)="+post.owner.id()+" ");
-	cypher += "CREATE (p:Post { props } ) ";
-	cypher += "CREATE (o)-[:Posted { ts: "+ts+" } ]->(p) ";
+	cypher += "CREATE UNIQUE (o)-[:Posted { ts: "+ts+" } ]->(p:Post { props } )";
+	
+	// TODO: Match & Create CanSee relationships with tagged users
+	var tags = [];
+	for (var i=0; i<post.tags.length; i++)
+	{
+		var id = null;
+		if (post.tags[i].constructor === User.Model)
+		{
+			id = post.tags[i].id();
+		}
+		else if (typeof post.tags[i] === "number")
+		{
+			id = post.tags[i];
+		}
+		
+		if (id)
+		{
+			tags.push("id(t)="+id);
+		}
+	}
 	if (post.access === "Public")
 	{
-		matches.push("MATCH (a:Access) WHERE a.level=\"Public\" ");
-		cypher += "CREATE UNIQUE (a)-[:CanSee{ ts: "+ts+" } ]->(p) ";
+		tags.push("t.level=\"Public\"");
 	}
-	// TODO: Match & Create CanSee relationships with tagged users
-	cypher += "Return p,id(p),o";
+	
+	if (tags.length>0)
+	{
+		matches.push("MATCH (t) WHERE "+tags.join(" OR ")+" ");
+		cypher += "<-[:CanSee { ts: "+ts+" } ]-(t) ";
+	}
+	
+	cypher += " RETURN p,id(p),o";
+	cypher += (tags.length>0) ? ",t" : "";
+	
 	var query = {
 		"query": matches.join("")+cypher,
 		"params": {

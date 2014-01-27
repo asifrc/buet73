@@ -101,9 +101,9 @@ var createUsers = function(userCount, tempUsers, done) {
 /**
 * Post Utilities
 */
-
+var postnum = 0;
 var samplePost = function(owner) {
-	return new Post.Model("This is a test Post.", owner);
+	return new Post.Model("Post #"+(postnum++)+" - This is a test Post.", owner);
 };
 
 var createPublicNode = function(cb) {
