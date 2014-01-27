@@ -7,6 +7,7 @@
 
 var db = require('../models/db');
 var User = require('../models/User');
+var Post = require('../models/Post');
 
 var strToTitle = function(str) {
 	return str.toLowerCase().replace(/(?:^.)|(?:\s.)/g, function(letter) { return letter.toUpperCase(); });
@@ -35,6 +36,9 @@ var userValues = {
 	]
 };
 
+/**
+* User Utilities
+*/
 var validUser = function() {
 	var vals = userValues;
 	vals.firstName.push(vals.firstName.shift());
@@ -92,9 +96,19 @@ var createUsers = function(userCount, tempUsers, done) {
 	reg(reg);
 };
 
+/**
+* Post Utilities
+*/
+
+var samplePost = function(owner) {
+	return new Post.Model("This is a test Post.", owner);
+};
+	
+
 module.exports = {
 	strToTitle: strToTitle,
 	validUser: validUser,
+	samplePost: samplePost,
 	emptyDb: emptyDb,
 	createUsers: createUsers
 };

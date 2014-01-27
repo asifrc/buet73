@@ -35,6 +35,7 @@ describe("Post Model", function() {
 			});
 		});
 	});
+	//after(helper.emptyDb);
 	describe("PostModel Class", function() {
 		describe("Initialization", function() {
 			it("should create a Post object", function() {
@@ -98,16 +99,14 @@ describe("Post Model", function() {
 				});
 			});
 			it("should return an error if the post owner is null", function(done) {
-				var post = new Post.Model();
-				post.content = content;
+				var post = helper.samplePost();
 				Post.create(post, function(err, res) {
 					err.should.exist;
 					done();
 				});
 			});
 			it("should return an error if the post owner is not a User object", function(done) {
-				var post = new Post.Model();
-				post.content = content;
+				var post = helper.samplePost();
 				post.owner = {};
 				Post.create(post, function(err, res) {
 					err.should.exist;
@@ -116,10 +115,23 @@ describe("Post Model", function() {
 			});
 			it("should return an error if the post owner's id is not set", function(done) {
 				var post = new Post.Model();
-				post.content = content;
+				post.content = helper.samplePost().content;
 				post.owner = new User.Model();
 				Post.create(post, function(err, res) {
 					err.should.exist;
+					done();
+				});
+			});
+		});
+		describe("Valid Post", function() {
+			it("should return an array containing one PostModel object", function(done) {
+				var post = helper.samplePost(owner);
+				Post.create(post, function(err, result) {
+					should.not.exist(err);
+					result.should.exist;
+					Array.isArray(result).should.be.ok;
+					result.length.should.equal(1);
+					result[0].should.be.an.instanceOf(Post.Model);
 					done();
 				});
 			});
