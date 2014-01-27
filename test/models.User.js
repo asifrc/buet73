@@ -50,7 +50,7 @@ describe("User Model", function() {
 			});
 			it("should return the new value for _id set by the setter", function() {
 				var user = new User.Model();
-				var id = "1234";
+				var id = 1234;
 				user.id(id).should.equal(id);
 				user.id().should.equal(id);
 			});

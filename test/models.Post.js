@@ -13,11 +13,27 @@ var should = require("should"),
 
 describe("Post Model", function() {
 	var content, owner, ownerId;
-	before(function() {
+	var users = [];
+	before(function(done) {
 		content = "This is a post.";
-		owner = new User.Model();
-		ownerId = "1234";
-		owner.id(ownerId);
+		helper.emptyDb(function() {
+			helper.createUsers(5, users, function(err) {
+				if (err)
+				{
+					done(err);
+				}
+				User.find({}, function(err, res) {
+					users = res;
+					Array.isArray(users).should.be.ok;
+					users.length.should.equal(5);
+					users[0].should.be.an.instanceof(User.Model);
+					users[0].id().should.exist;
+					owner = users[0];
+					ownerId = owner.id();
+					done();
+				});
+			});
+		});
 	});
 	describe("PostModel Class", function() {
 		describe("Initialization", function() {
@@ -35,14 +51,14 @@ describe("Post Model", function() {
 				post.owner.should.be.an.instanceOf(User.Model);
 				post.owner.id().should.equal(ownerId);
 			});
-			it("should cast owner to a full User object when passed a string", function() {
+			it("should cast owner to a full User object when passed an _id number", function() {
 				var post = new Post.Model(content, ownerId);
 				post.content.should.equal(content);
 				post.owner.should.be.an.instanceOf(User.Model);
 				post.owner.id().should.equal(ownerId);
 			});
-			it("should cast owner to a full User object when passed a number", function() {
-				var post = new Post.Model(content, parseInt(ownerId));
+			it("should cast owner to a full User object when passed a string", function() {
+				var post = new Post.Model(content, ownerId.toString());
 				post.content.should.equal(content);
 				post.owner.should.be.an.instanceOf(User.Model);
 				post.owner.id().should.equal(ownerId);

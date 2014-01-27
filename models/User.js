@@ -46,7 +46,7 @@ function UserModel (obj, noHash) {
 	
 	// Getter for _id
 	self.id = function(id) {
-		_id = (typeof id !== "undefined") ? id : _id;
+		_id = (typeof id !== "undefined") ? parseInt(id) : _id;
 		return _id;
 	};
 	
