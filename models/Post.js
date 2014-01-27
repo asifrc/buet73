@@ -52,15 +52,41 @@ exports.Model = PostModel;
 */
 var parsePosts = function(result) {
 	var posts = [];
+	var ids = [];
+	
+	var getPost = function(data) {
+		var index = ids.indexOf(data[1]);
+		if (index==-1)
+		{
+			ids.push(data[1]);
+			var post = new PostModel();
+			post.id(data[1]);
+			post.content = data[0].data.content;
+			post.content = data[0].data.ts;
+			post.access = data[0].data.access;
+			post.owner = new User.Model(data[2].data);
+			post.owner.id(data[3]);
+			len = posts.push(post);
+			return posts[len-1];
+		}
+		else
+		{
+			return posts[index];
+		}
+	};
+	
 	for (var i=0; i<result.data.length; i++)
 	{
-		var post = new PostModel();
-		post.id(result.data[i][1]);
-		post.content = result.data[i][0].data.content;
-		post.owner = new User.Model(result.data[i][2].data);
-		post.access = result.data[i][0].data.access;
-		post.ts = result.data[i][0].data.ts;
-		posts.push(post);
+		var post = getPost(result.data[i]);
+		if (result.data[i].length === 6)
+		{
+			if (typeof result.data[i][4].data.level === "undefined")
+			{
+				var user = new User.Model(result.data[i][4].data, true);
+				user.id(result.data[i][5]);
+				post.tags.push(user);
+			}
+		}
 	}
 	return posts;
 };
@@ -147,8 +173,8 @@ var create = function(post, cb) {
 		cypher += "<-[:CanSee { ts: "+ts+" } ]-(t) ";
 	}
 	
-	cypher += " RETURN p,id(p),o";
-	cypher += (tags.length>0) ? ",t" : "";
+	cypher += " RETURN p,id(p),o,id(o)";
+	cypher += (tags.length>0) ? ",t,id(t)" : "";
 	
 	var query = {
 		"query": matches.join("")+cypher,

@@ -15,6 +15,10 @@ describe("Post Model", function() {
 	var content, owner, ownerId;
 	var users = [];
 	before(function(done) {
+		this.timeout = 20000;
+		
+		usersToCreate = 10;
+		
 		content = helper.samplePost().content;
 		helper.emptyDb(function() {
 			helper.createPublicNode(function(error, res) {
@@ -22,7 +26,7 @@ describe("Post Model", function() {
 				{
 					done(error);
 				}
-				helper.createUsers(5, users, function(err) {
+				helper.createUsers(usersToCreate, users, function(err) {
 					if (err)
 					{
 						done(err);
@@ -30,7 +34,7 @@ describe("Post Model", function() {
 					User.find({}, function(err, res) {
 						users = res;
 						Array.isArray(users).should.be.ok;
-						users.length.should.equal(5);
+						users.length.should.equal(usersToCreate);
 						users[0].should.be.an.instanceOf(User.Model);
 						users[0].id().should.exist;
 						owner = users[0];
