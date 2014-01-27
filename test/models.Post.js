@@ -15,7 +15,7 @@ describe("Post Model", function() {
 	var content, owner, ownerId;
 	var users = [];
 	before(function(done) {
-		this.timeout = 20000;
+		this.timeout(20000);
 		
 		usersToCreate = 10;
 		

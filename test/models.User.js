@@ -223,6 +223,7 @@ describe("User Model", function() {
 	describe("Find", function() {
 		var tempUsers = [];
 		before(function(done) {
+			this.timeout(20000);
 			helper.createUsers(10, tempUsers, done);
 		});
 		after(function(done) {
