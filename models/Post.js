@@ -77,15 +77,36 @@ var create = function(post, cb) {
 	}
 	
 	var ts = new Date().getTime();
-	/*
+	
+	var props = {
+		content: post.content,
+		oid: post.owner.id(),
+		access: post.access,
+		ts: ts
+	};
+	
 	// Build Cyhper Query
-	var cypher = "MATCH (o:User) WHERE id(o)="+post.owner.id()+" ";
+	var matches = [];
+	var cypher = "";
+	matches.push("MATCH (o:User) WHERE id(o)="+post.owner.id()+" ");
 	cypher += "CREATE (p:Post { props } ) ";
-	cypher += "CREATE (o)-[:Posted { ts: "+ts+" }]->(p) ";
-	if (post.access === "Public")
+	cypher += "CREATE (o)-[:Posted { ts: "+ts+" } ]->(p) ";
+	if (post.access !== "Public")
 	{
-		cypher += "MATCH (a:Access) WHERE a.level=\"Public\"
+		matches.push("MATCH (a:Access) WHERE a.level=\"Public\" ");
+		cypher += "CREATE UNIQUE (a)-[:CanSee{ ts: "+ts+" } ]->(p) ";
 	}
-	console.log(cypher);*/
+	// TODO: Match & Create CanSee relationships with tagged users
+	cypher += "Return p,o";
+	var query = {
+		"query": matches.join("")+cypher,
+		"params": {
+			"props": props
+		}
+	};
+	db.neo(query, cb, function(err, res) {
+		return respond(cb, err);
+	});
+	
 };
 exports.create = create;
