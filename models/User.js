@@ -4,14 +4,12 @@
 * User Model
 */
 
+var db = require('./db');
+var respond = db.respond;
+var neo = db.neo;
+
 var crypto = require('crypto');
 var rest = require('restler');
-var db_url = process.env.NEO4J_URL || 'http://localhost:7474';
-db_url += "/db/data/cypher";
-exports.db_url = function(url) {
-	db_url = url || db_url;
-	return db_url;
-};
 
 var reqFields = function() { return [
 	'firstName',
@@ -48,7 +46,7 @@ function UserModel (obj, noHash) {
 	
 	// Getter for _id
 	self.id = function(id) {
-		_id = (typeof id !== "undefined") ? id : _id;
+		_id = (typeof id !== "undefined") ? parseInt(id) : _id;
 		return _id;
 	};
 	
@@ -118,30 +116,17 @@ function UserModel (obj, noHash) {
 exports.Model = UserModel;
 
 /**
-* Uniform method to call callbacks for exported functions
+* Parse a query response into User Objects
 */
-var respond = function (callback, err, result) {
-	err = err || null;
-	if (typeof callback === "function")
+var parseUsers = function(result) {
+	var users = [];
+	for (var i=0; i<result.data.length; i++)
 	{
-		callback(err, result);
+		var user = new UserModel(result.data[i][0].data, true);
+		user.id(result.data[i][1]);
+		users.push(user);
 	}
-	return { err: err, result: result };
-};
-
-/**
-* Make a Cypher Query to Neo4j
-*/
-var neo = function(query, superCb, cb) {
-	var err = null;
-	rest.postJson(db_url, query).on('complete', function(result, response) {
-		if (response.statusCode !== 200)
-		{
-			err = "Registration Error: received "+response.statusCode+" response";
-			return respond(superCb, err);
-		}
-		return respond(cb, err, result);
-	});
+	return users;
 };
 
 /**
@@ -229,16 +214,6 @@ exports.register = register;
 /**
 * Retrieve a User
 */
-var parseUsers = function(result) {
-	var users = [];
-	for (var i=0; i<result.data.length; i++)
-	{
-		var user = new UserModel(result.data[i][0].data, true);
-		user.id(result.data[i][1]);
-		users.push(user);
-	}
-	return users;
-};
 var find = function(criteria, cb) {
 	var err = null;
 	

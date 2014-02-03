@@ -4,92 +4,27 @@
 * Tests for models/User.js
 */
 
+var helper = require('./helper.models.js');
 var User = require('../models/User');
 
 var should = require("should"),
 	assert = require("assert");
 
-var rest = require('restler');
-var db_url = process.env.NEO4J_URL || 'http://localhost:7474';
-db_url += "/db/data/cypher";
-
-var strToTitle = function(str) {
-	return str.toLowerCase().replace(/(?:^.)|(?:\s.)/g, function(letter) { return letter.toUpperCase(); });
-};
-var userValues = {
-	fbid: 15000000000,
-	firstName: [
-		"James", "John", "Robert", "Michael", "William", "David", "Richard", "Charles", "Joseph", "Thomas"
-	],
-	lastName: [
-		"Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson", "Moore"
-	],
-	department: [
-		"Architecture",
-		"Civil Engineering",
-		"Chemical Engineering",
-		"Electrical Engineering",
-		"Mechanical Engineering",
-		"Metallurgical Engineering",
-		"Naval Architecture"
-	],
-	country: [
-		'United States', "Australia", "Bangladesh", "China", "India", "United Kingdom"
-	]
-};
-
-var validUser = function() {
-	var vals = userValues;
-	vals.firstName.push(vals.firstName.shift());
-	vals.lastName.push(vals.lastName.shift());
-	return {
-		fbid: (vals.fbid++).toString(),
-		firstName: vals.firstName[0],
-		lastName: vals.lastName[0],
-		displayName: vals.firstName[0]+" "+vals.lastName[0],
-		department:  vals.department[Math.floor(Math.random()*vals.department.length)],
-		email: vals.firstName[0]+vals.lastName[0]+"@asifchoudhury.com",
-		password: "password",
-		country: vals.country[Math.floor(Math.random()*vals.country.length)]
-	};
-};
-
-var emptyDb = function(cb) {
-	var query = {"query": "MATCH (n)-[r]-() DELETE n,r"};
-	rest.postJson(db_url, query).on('complete', function(data, response) {
-		if (response.statusCode === 200)
-		{
-			query = {"query": "MATCH (n) DELETE n"};
-			rest.postJson(db_url, query).on('complete', function(data, response) {
-				if (response.statusCode === 200)
-				{
-					cb();
-				}
-				else
-				{
-					cb(response.statusCode);
-				}
-			});
-		}
-		else
-		{
-			cb(response.statusCode);
-		}
-	});
-};
-
 describe("User Model", function() {
 	before(function(done) {
-		emptyDb(done);
+		helper.emptyDb(done);
 	});
-	describe("UserModel", function() {
+	after(function(done) {
+		helper.emptyDb(done);
+	});
+	describe("UserModel Class", function() {
 		describe("Initialization", function() {
 			it("should create a new User object", function() {
 				var user = new User.Model();
 				user.should.be.an.instanceOf(User.Model);
 			});
 			it("should create a new User object from another User object", function() {
-				var obj = validUser();
+				var obj = helper.validUser();
 				var userA = new User.Model(obj);
 				userA.should.be.an.instanceOf(User.Model);
 				var userB = new User.Model(userA);
@@ -103,19 +38,19 @@ describe("User Model", function() {
 				}
 			});
 			it("should accept and return a valid user object as a parameter", function() {
-				var obj = validUser();
+				var obj = helper.validUser();
 				var user = new User.Model(obj);
 				user.should.be.an.instanceOf(User.Model);
 			});
 		});
-		describe("id", function() {
+		describe("ID", function() {
 			it("should return a null value for _id when no _id has been set", function() {
 				var user = new User.Model();
 				should(user.id()).equal(null);
 			});
 			it("should return the new value for _id set by the setter", function() {
 				var user = new User.Model();
-				var id = "1234";
+				var id = 1234;
 				user.id(id).should.equal(id);
 				user.id().should.equal(id);
 			});
@@ -148,37 +83,15 @@ describe("User Model", function() {
 	});
 	describe("Register", function() {
 		before(function(done) {
-			emptyDb(done);
+			helper.emptyDb(done);
 		});
 		afterEach(function(done) {
-			emptyDb(done);
-		});
-		describe("Connection", function() {
-			it("should return an error if the server returns an error code", function(done) {
-				var old_url = User.db_url();
-				User.db_url(old_url+"/badaddress");
-				var user = new User.Model(validUser());
-				user.cpassword = "password";
-				User.register(user, function(err, result) {
-					err.should.exist;
-					User.db_url(old_url);
-					done();
-				});
-			});
-			it("should return an object when the callback passed is not a function", function() {
-				var user = new User.Model(validUser());
-				user.cpassword = "password";
-				var e = new Error();
-				var block = function() {
-					User.register(user, {});
-				};
-				should(block).not.throw(e);
-			});
+			helper.emptyDb(done);
 		});
 		describe("Validation", function() {
 			var reqTest = function(field) {
 				it("should return an error when `"+field+"` is missing", function(done) {
-					var invalidUser = validUser();
+					var invalidUser = helper.validUser();
 					invalidUser.cpassword = invalidUser.password;
 					delete invalidUser[field];
 					User.register(invalidUser, function(err, result) {
@@ -187,7 +100,7 @@ describe("User Model", function() {
 					});
 				});
 				it("should return an error when `"+field+"` is blank", function(done) {
-					var invalidUser = validUser();
+					var invalidUser = helper.validUser();
 					invalidUser.cpassword = invalidUser.password;
 					invalidUser[field] = "";
 					User.register(invalidUser, function(err, result) {
@@ -202,14 +115,14 @@ describe("User Model", function() {
 			}
 			
 			it("should return an error if password confirmation missing", function(done) {
-				var invalidUser = validUser();
+				var invalidUser = helper.validUser();
 				User.register(invalidUser, function(err, result) {
 					err.should.equal("Registration Error: cpassword field is missing");
 					done();
 				});
 			});
 			it("should return an error if the passwords do not match", function(done) {
-				var invalidUser = validUser();
+				var invalidUser = helper.validUser();
 				invalidUser.cpassword = invalidUser.password+"mismatch";
 				User.register(invalidUser, function(err, result) {
 					err.should.equal("Registration Error: passwords do not match");
@@ -217,18 +130,18 @@ describe("User Model", function() {
 				});
 			});
 			it("should return an error if the email is invalidly formatted", function(done) {
-				var user = new User.Model(validUser());
-				user.cpassword = validUser().password;
+				var user = new User.Model(helper.validUser());
+				user.cpassword = helper.validUser().password;
 				user.email = "notavalidformat1";
 				User.register(user, function(err, result) {
 					err.should.equal("Registration Error: invalid email format");
-					user = new User.Model(validUser());
-					user.cpassword = validUser().password;
+					user = new User.Model(helper.validUser());
+					user.cpassword = helper.validUser().password;
 					user.email = "notavalid@format2";
 					User.register(user, function(err, result) {
 						err.should.equal("Registration Error: invalid email format");
-						user = new User.Model(validUser());
-						user.cpassword = validUser().password;
+						user = new User.Model(helper.validUser());
+						user.cpassword = helper.validUser().password;
 						user.email = "@notavalidformat3";
 						User.register(user, function(err, result) {
 							err.should.equal("Registration Error: invalid email format");
@@ -238,8 +151,8 @@ describe("User Model", function() {
 				});
 			});
 			it("should return an error if the email address already exists", function(done) {
-				var user = new User.Model(validUser());
-				user.cpassword = validUser().password;
+				var user = new User.Model(helper.validUser());
+				user.cpassword = helper.validUser().password;
 				User.register(user, function(err, result) {
 					should.not.exist(err);
 					User.register(user, function(err, result) {
@@ -251,16 +164,16 @@ describe("User Model", function() {
 		});
 		describe("Valid User", function() {
 			it("should return no error if successfully registered", function(done) {
-				var user = new User.Model(validUser());
-				user.cpassword = validUser().password;
+				var user = new User.Model(helper.validUser());
+				user.cpassword = helper.validUser().password;
 				User.register(user, function(err, result) {
 					should.not.exist(err);
 					done();
 				});
 			});
 			it("should return an array containing one UserModel object", function(done) {
-				var user = new User.Model(validUser());
-				user.cpassword = validUser().password;
+				var user = new User.Model(helper.validUser());
+				user.cpassword = helper.validUser().password;
 				User.register(user, function(err, result) {
 					should.not.exist(err);
 					result.should.exist;
@@ -271,8 +184,8 @@ describe("User Model", function() {
 				});
 			});
 			it("should return a UserModel object with _id populated", function(done) {
-				var user = new User.Model(validUser());
-				user.cpassword = validUser().password;
+				var user = new User.Model(helper.validUser());
+				user.cpassword = helper.validUser().password;
 				User.register(user, function(err, result) {
 					result.should.exist;
 					Array.isArray(result).should.be.ok;
@@ -285,8 +198,8 @@ describe("User Model", function() {
 		});
 		describe("From UserModel", function() {
 			it("should return an error if the user already has an id", function(done) {
-				var user = new User.Model(validUser());
-				user.cpassword = validUser().password;
+				var user = new User.Model(helper.validUser());
+				user.cpassword = helper.validUser().password;
 				user.id("1234");
 				user.register(function(err, result) {
 					err.should.exist;
@@ -294,8 +207,8 @@ describe("User Model", function() {
 				});
 			});
 			it("should register the user when called on the user object", function(done) {
-				var user = new User.Model(validUser());
-				user.cpassword = validUser().password;
+				var user = new User.Model(helper.validUser());
+				user.cpassword = helper.validUser().password;
 				user.register(function(err, result) {
 					result.should.exist;
 					Array.isArray(result).should.be.ok;
@@ -310,37 +223,11 @@ describe("User Model", function() {
 	describe("Find", function() {
 		var tempUsers = [];
 		before(function(done) {
-			this.timeout(20000); // Extended max timeout for Travis CI
-			var userCount = 10;
-			var countDown = function(cb) {
-				if (--userCount <= 0)
-				{
-					done();
-				}
-				else
-				{
-					cb(cb);
-				}
-			};
-			var reg = function(cb) {
-				var user = new User.Model(validUser());
-				user.cpassword = "password";
-				User.register(user, function(err, result) {
-					if (err)
-					{
-						done(err);
-					}
-					else
-					{
-						tempUsers.push(result[0]);
-						countDown(cb);
-					}
-				});
-			};
-			reg(reg);
+			this.timeout(20000);
+			helper.createUsers(10, tempUsers, done);
 		});
 		after(function(done) {
-			emptyDb(done);
+			helper.emptyDb(done);
 		});
 		it("should return an array", function(done) {
 			var criteria = {
@@ -499,8 +386,8 @@ describe("User Model", function() {
 			});
 		});
 		it("should return the saved user if successfully updated", function(done) {
-			var user = new User.Model(validUser());
-			user.cpassword = validUser().password;
+			var user = new User.Model(helper.validUser());
+			user.cpassword = helper.validUser().password;
 			User.register(user, function(error, result) {
 				should.not.exist(error);
 				result.should.exist;
@@ -509,7 +396,7 @@ describe("User Model", function() {
 				result[0].should.be.an.instanceOf(User.Model);
 				result[0].id().should.exist;
 				
-				var newUser = new User.Model(validUser());
+				var newUser = new User.Model(helper.validUser());
 				newUser.id( result[0].id() );
 				newUser.displayName = "Updated User";
 				newUser.displayName.should.not.equal(result[0].displayName);
@@ -536,15 +423,15 @@ describe("User Model", function() {
 		});
 		describe("From UserModel", function() {
 			it("should return an error if the user has no id", function(done) {
-				var user = new User.Model(validUser());
+				var user = new User.Model(helper.validUser());
 				user.update(function(err, result) {
 					err.should.exist;
 					done();
 				});
 			});
 			it("should update the user when called on the UserModel object", function(done) {
-				var user = new User.Model(validUser());
-				user.cpassword = validUser().password;
+				var user = new User.Model(helper.validUser());
+				user.cpassword = helper.validUser().password;
 				User.register(user, function(error, result) {
 					should.not.exist(error);
 					result.should.exist;
@@ -553,7 +440,7 @@ describe("User Model", function() {
 					result[0].should.be.an.instanceOf(User.Model);
 					result[0].id().should.exist;
 					
-					var newUser = new User.Model(validUser());
+					var newUser = new User.Model(helper.validUser());
 					newUser.id( result[0].id() );
 					newUser.displayName = "Updated User";
 					newUser.displayName.should.not.equal(result[0].displayName);
@@ -589,8 +476,8 @@ describe("User Model", function() {
 			});
 		});
 		it("should remove an existing user", function(done) {
-			var user = new User.Model(validUser());
-			user.cpassword = validUser().password;
+			var user = new User.Model(helper.validUser());
+			user.cpassword = helper.validUser().password;
 			User.register(user, function(error, result) {
 				should.not.exist(error);
 				result.should.exist;
@@ -613,8 +500,8 @@ describe("User Model", function() {
 		});
 		describe("From UserModel", function() {
 			it("should remove an existing user when called on the user", function(done) {
-				var user = new User.Model(validUser());
-				user.cpassword = validUser().password;
+				var user = new User.Model(helper.validUser());
+				user.cpassword = helper.validUser().password;
 				User.register(user, function(error, result) {
 					should.not.exist(error);
 					result.should.exist;
