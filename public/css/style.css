@@ -1,0 +1,20 @@
+body
+{
+	padding-top: 60px;
+	padding-bottom: 60px;
+}
+
+/**
+* Fonts
+*/
+.cursive
+{
+	font-family: 'Cedarville Cursive', cursive;
+}
+.subbrand
+{
+	font-family: 'Cedarville Cursive', cursive;
+	color: #EEEEEE !important;
+	font-size: 17pt;
+	margin-bottom: 0px;
+}
