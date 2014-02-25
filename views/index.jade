@@ -3,11 +3,21 @@
 extends layout
 
 block content
-	.row.row-fluid
-		.col-md-1
-		.col-md-10
-			.jumbotron
-				h1 Bismillah
-			.bod
-				| Bismillah
+	.jumbotron.content.masthead
+		.row.row-fluid
+			.col-md-3
+			.col-md-3
+				h1 Connect with your classmates
+			.col-md-2(align='center',style="padding-top: 25px")
+				p
+					button.btn.btn-primary.btn-lg Sign up for Buet73
+				h2 or
+				p
+					include fbbtn
+	.container
+		.row.row-fluid
+			.col-md-1
+			.col-md-10
+				.bod
+					| Bismillah
 	
