@@ -4,7 +4,7 @@
  */
 
 var express = require('express'),
-	user = require('./routes/user'),
+	//user = require('./routes/user'),
 	http = require('http'),
 	path = require('path'),
 	mongoose = require('mongoose');
@@ -42,7 +42,7 @@ if ('development' == app.get('env')) {
  
 //Index
 app.get('/', function(req, res) {
-	res.sendfile('./views/index.html');
+	res.render('index');
 });
 
 //DEV ROUTES
