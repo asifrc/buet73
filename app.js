@@ -44,6 +44,9 @@ if ('development' == app.get('env')) {
 app.get('/', function(req, res) {
 	res.render('index');
 });
+app.get('/signup', function(req, res) {
+	res.render('signup');
+});
 
 //DEV ROUTES
 app.get('/dev/dbtest', function(req, res) {
