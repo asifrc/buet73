@@ -47,6 +47,9 @@ app.get('/', function(req, res) {
 app.get('/signup', function(req, res) {
 	res.render('signup');
 });
+app.get('/signin', function(req, res) {
+	res.render('signin');
+});
 
 //DEV ROUTES
 app.get('/dev/dbtest', function(req, res) {
