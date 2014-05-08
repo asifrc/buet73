@@ -10,13 +10,13 @@ var express = require('express'),
 	mongoose = require('mongoose');
 
 //Connect to MongoDB
-var mongoUrl = "mongodb://localhost/buet73";
-mongoose.connect(mongoUrl);
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function cb() {
-	console.log("Connected to MongoDB at "+mongoUrl); //DEV
-});
+// var mongoUrl = "mongodb://localhost/buet73";
+// mongoose.connect(mongoUrl);
+// var db = mongoose.connection;
+// db.on('error', console.error.bind(console, 'connection error:'));
+// db.once('open', function cb() {
+// 	console.log("Connected to MongoDB at "+mongoUrl); //DEV
+// });
 
 var app = express();
 
@@ -39,7 +39,7 @@ if ('development' == app.get('env')) {
 /**
  * Routes
  */
- 
+
 //Index
 app.get('/', function(req, res) {
 	res.render('index');
