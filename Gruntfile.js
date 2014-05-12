@@ -14,7 +14,7 @@ module.exports = function(grunt) {
 			options: {
 				reporter: 'spec'
 			},
-			all: { src: ['test/*.js'] }
+			all: { src: ['test/integration/*.js'] }
 		},
 		jshint: {
 			all: ['app.js', 'Gruntfile.js', 'models', 'routes', 'views/*.js', 'test'],
@@ -44,7 +44,7 @@ module.exports = function(grunt) {
 
 	// DEFAULT TASK
 	grunt.registerTask('default', ['simplemocha']);
-
-	grunt.registerTask('functional-test', ['express', 'casperjs'])
+	grunt.registerTask('test', ['simplemocha']);
+	grunt.registerTask('test-functional', ['express', 'casperjs']);
 
 };
