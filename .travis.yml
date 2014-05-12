@@ -12,3 +12,4 @@ notifications:
 before_install:
  - chmod +x ./bin/ci/install_neo4j.sh
  - ./bin/ci/install_neo4j.sh
+script: "npm test && grunt functional-test"

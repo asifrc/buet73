@@ -5,8 +5,8 @@
 */
 
 var helper = require('./helper.models.js');
-var Post = require('../models/Post');
-var User = require('../models/User');
+var Post = require('../../models/Post');
+var User = require('../../models/User');
 
 var should = require("should"),
 	assert = require("assert");
@@ -16,9 +16,9 @@ describe("Post Model", function() {
 	var users = [];
 	before(function(done) {
 		this.timeout(20000);
-		
+
 		usersToCreate = 10;
-		
+
 		content = helper.samplePost().content;
 		helper.emptyDb(function() {
 			helper.createPublicNode(function(error, res) {
@@ -152,7 +152,7 @@ describe("Post Model", function() {
 		describe("Valid Post", function() {
 			it("should return an array containing one PostModel object", function(done) {
 				var post = helper.samplePost(owner);
-				post.tags = 
+				post.tags =
 				Post.create(post, function(err, result) {
 					should.not.exist(err);
 					result.should.exist;

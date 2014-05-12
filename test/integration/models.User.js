@@ -5,7 +5,7 @@
 */
 
 var helper = require('./helper.models.js');
-var User = require('../models/User');
+var User = require('../../models/User');
 
 var should = require("should"),
 	assert = require("assert");
@@ -29,7 +29,7 @@ describe("User Model", function() {
 				userA.should.be.an.instanceOf(User.Model);
 				var userB = new User.Model(userA);
 				userB.should.be.an.instanceOf(User.Model);
-				for (var field in userA) 
+				for (var field in userA)
 				{
 					if (userA[field] !== null && typeof userB[field] !== "function")
 					{
@@ -113,7 +113,7 @@ describe("User Model", function() {
 			{
 				reqTest(User.reqFields[i]);
 			}
-			
+
 			it("should return an error if password confirmation missing", function(done) {
 				var invalidUser = helper.validUser();
 				User.register(invalidUser, function(err, result) {
@@ -395,12 +395,12 @@ describe("User Model", function() {
 				result.length.should.equal(1);
 				result[0].should.be.an.instanceOf(User.Model);
 				result[0].id().should.exist;
-				
+
 				var newUser = new User.Model(helper.validUser());
 				newUser.id( result[0].id() );
 				newUser.displayName = "Updated User";
 				newUser.displayName.should.not.equal(result[0].displayName);
-				
+
 				User.update(newUser, function(err, res) {
 					should.not.exist(err);
 					res.should.exist;
@@ -409,7 +409,7 @@ describe("User Model", function() {
 					res[0].should.be.an.instanceOf(User.Model);
 					res[0].id().should.exist;
 					res[0].id().should.equal(newUser.id());
-					
+
 					for (var field in  newUser)
 					{
 						if (typeof newUser[field] !== "function" && newUser[field] !== null)
@@ -439,12 +439,12 @@ describe("User Model", function() {
 					result.length.should.equal(1);
 					result[0].should.be.an.instanceOf(User.Model);
 					result[0].id().should.exist;
-					
+
 					var newUser = new User.Model(helper.validUser());
 					newUser.id( result[0].id() );
 					newUser.displayName = "Updated User";
 					newUser.displayName.should.not.equal(result[0].displayName);
-					
+
 					newUser.update(function(err, res) {
 						should.not.exist(err);
 						res.should.exist;

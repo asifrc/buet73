@@ -5,11 +5,11 @@
 */
 
 
-var db = require('../models/db');
+var db = require('../../models/db');
 var respond = db.respond;
 
-var User = require('../models/User');
-var Post = require('../models/Post');
+var User = require('../../models/User');
+var Post = require('../../models/Post');
 
 var strToTitle = function(str) {
 	return str.toLowerCase().replace(/(?:^.)|(?:\s.)/g, function(letter) { return letter.toUpperCase(); });
@@ -112,7 +112,7 @@ var createPublicNode = function(cb) {
 		respond(cb, err, res);
 	});
 };
-	
+
 
 module.exports = {
 	strToTitle: strToTitle,
@@ -122,4 +122,3 @@ module.exports = {
 	createUsers: createUsers,
 	createPublicNode: createPublicNode
 };
-	

@@ -4,7 +4,7 @@
 * Tests for models/db.js
 */
 
-var db = require('../models/db');
+var db = require('../../models/db');
 
 var should = require("should"),
 	assert = require("assert");

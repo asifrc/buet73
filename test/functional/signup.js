@@ -10,6 +10,6 @@ casper.test.begin('Bismillah Test', function(test) {
   })
 
   casper.run(function() {
-    casper.run();
+    test.done();
   });
 });
