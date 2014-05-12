@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "express": "3.4.8",
-	"jade": "*",
+    "jade": "*",
     "mongoose": "*",
     "neo4j": "*",
     "restler": "~3.1.0",
@@ -25,7 +25,8 @@
     "coveralls": "*",
     "mocha-lcov-reporter": "0.0.1",
     "grunt-contrib-jshint": "~0.8.0",
-    "phantom": "^0.6.1"
+    "phantom": "^0.6.1",
+    "casperjs": "^1.1.0-beta3"
   },
   "engines": {
     "node": "0.10"
