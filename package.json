@@ -16,7 +16,9 @@
     "jade": "*",
     "mongoose": "*",
     "neo4j": "*",
-    "restler": "~3.1.0",
+    "restler": "~3.1.0"
+  },
+  "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-simple-mocha": "~0.4.0",
     "mocha": "~1.17.x",
