@@ -15,7 +15,7 @@ var express = require('express'),
 // var db = mongoose.connection;
 // db.on('error', console.error.bind(console, 'connection error:'));
 // db.once('open', function cb() {
-// 	console.log("Connected to MongoDB at "+mongoUrl); //DEV
+//   console.log("Connected to MongoDB at "+mongoUrl); //DEV
 // });
 
 var app = express();
@@ -60,3 +60,6 @@ http.createServer(app).listen(app.get('port'), function(){
 	console.log("Bismillah");
 	console.log('Express server listening on port ' + app.get('port'));
 });
+
+
+module.exports = app;

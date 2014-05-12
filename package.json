@@ -9,11 +9,11 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "dependencies": {
     "express": "3.4.8",
-	"jade": "*",
+    "jade": "*",
     "mongoose": "*",
     "neo4j": "*",
     "restler": "~3.1.0",
@@ -24,7 +24,11 @@
     "should": "~3.1.x",
     "coveralls": "*",
     "mocha-lcov-reporter": "0.0.1",
-    "grunt-contrib-jshint": "~0.8.0"
+    "grunt-contrib-jshint": "~0.8.0",
+    "phantom": "^0.6.1",
+    "casperjs": "^1.1.0-beta3",
+    "grunt-casperjs": "^1.4.0",
+    "grunt-express": "^1.3.5"
   },
   "engines": {
     "node": "0.10"
