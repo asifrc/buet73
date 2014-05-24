@@ -16,7 +16,7 @@
     "jade": "*",
     "mongoose": "*",
     "neo4j": "*",
-    "restler": "~3.1.0"
+    "restler": "~3.2.2"
   },
   "devDependencies": {
     "grunt": "~0.4.2",
