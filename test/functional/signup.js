@@ -14,7 +14,7 @@ casper.test.begin('User Can Signup', function(test) {
   casper.then(function() {
     test.assertEquals(this.getCurrentUrl(), BASE_URL+"/signup");
 
-    this.fill('form', {
+    this.fill('.form', {
       email: "buet73-test@asifchoudhury.com",
       password: "password1234",
       cpassword: "password1234",
