@@ -16,4 +16,4 @@ before_install:
  - chmod +x ./bin/ci/install_neo4j.sh
  - ./bin/ci/install_neo4j.sh
  - npm install -g grunt-cli
-script: "npm test && grunt test-functional"
+script: "npm test"
