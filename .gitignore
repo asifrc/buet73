@@ -1,3 +1,7 @@
 node_modules
 coverage
 **/.DS_STORE
+.tmp
+.vagrant
+modules
+Puppetfile.lock
