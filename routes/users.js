@@ -18,7 +18,15 @@ var respond = function(res, result) {
   res.send(JSON.stringify(result));
 };
 
-/* GET home page. */
+/* POST new user. */
+router.post('/', function(req, res) {
+  User.register(req.body, function(data) {
+    respond(res, data);
+  });
+});
+
+
+/* GET user list. */
 router.get('/', function(req, res) {
   User.find({}, function(data) {
     respond(res, data);
