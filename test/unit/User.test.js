@@ -4,9 +4,9 @@
  * Tests the User schema
  */
 
-var should = require("should")
-  , assert = require("assert")
-  , mongoose = require('mongoose');
+var should = require("should");
+var assert = require("assert");
+var mongoose = require('mongoose');
 
 //Connect to MongoDB
   var mongoUrl = "mongodb://localhost/buet73tests";
@@ -106,7 +106,7 @@ var should = require("should")
 
         it("should return the user when there are no errors", function(done) {
           user.register(bob, function(resp) {
-            (resp.error == null).should.be.ok;
+            (resp.error === null).should.be.ok;
             (typeof resp.data.users.length).should.equal("number");
             resp.data.users.length.should.equal(1);
             resp.data.users[0].firstName.should.equal(bob.firstName);
@@ -115,28 +115,31 @@ var should = require("should")
         });
 
         describe("Required Fields", function() {
-          for (var i=0; i<reqFields.length; i++)
-          {
-            var field = reqFields[i];
+          reqFields.map(function(field) {
             it("should save "+field, function(done) {
               bob[field] = "TestValue";
+              if (field === "password") {
+                bob.cpassword = "TestValue";
+              }
               user.register(bob, function(resp) {
-                (resp.error == null).should.be.ok;
+                (resp.error === null).should.be.ok;
                 var obj = {};
-                obj[field] = "TestValue"
-                user.model.count(obj, function(err, count) {
-                  count.should.equal(1);
+                obj[field] = "TestValue";
+                if (field === "password") {
+                  obj[field] = user.encryptPassword(obj[field]);
+                }
+                user.model.find(obj, function(err, count) {
+                  console.log(field, obj[field], count);
+                  //count.should.equal(1);
                   done();
                 });
               });
             });
-          }
+          });
         });
 
         describe("Missing Required Field", function() {
-          for (var i=0; i<reqFields.length; i++)
-          {
-            var field = reqFields[i];
+          reqFields.map(function(field) {
             it("should return an error when "+field+" is missing", function(done) {
               delete bob[field];
               user.register(bob, function(resp) {
@@ -144,7 +147,7 @@ var should = require("should")
                 done();
               });
             });
-          }
+          });
         });
 
         /*
@@ -165,28 +168,24 @@ var should = require("should")
            */
 
         describe("Optional Fields", function() {
-          for (var i=0; i<optFields.length; i++)
-          {
-            var field = optFields[i];
+          optFields.map(function(field) {
             it("should save "+field, function(done) {
               bob[field] = "TestValue";
               user.register(bob, function(resp) {
-                (resp.error == null).should.be.ok;
+                (resp.error === null).should.be.ok;
                 var obj = {};
-                obj[field] = "TestValue"
+                obj[field] = "TestValue";
                 user.model.count(obj, function(err, count) {
                   count.should.equal(1);
                   done();
                 });
               });
             });
-          }
+          });
         });
 
         describe("Missing Optional Field", function() {
-          for (var i=0; i<reqFields.length; i++)
-          {
-            var field = reqFields[i];
+          reqFields.map(function(field) {
             it("should still save successfully when "+field+" is missing", function(done) {
               delete bob[field];
               user.register(bob, function(resp) {
@@ -194,7 +193,7 @@ var should = require("should")
                 done();
               });
             });
-          }
+          });
         });
 
         describe("Invalid Password", function() {
@@ -261,7 +260,7 @@ var should = require("should")
 
           it("should return all users when empty object is passed", function(done) {
             user.find({}, function(resp) {
-              (resp.error == null).should.be.ok;
+              (resp.error === null).should.be.ok;
               resp.data.users.length.should.equal(2);
               done();
             });
@@ -272,7 +271,7 @@ var should = require("should")
 
           it("should return one user when sent one criterion matching one record", function(done) {
             user.find({ firstName: bob.firstName}, function(resp) {
-              (resp.error == null).should.be.ok;
+              (resp.error === null).should.be.ok;
               resp.data.users.length.should.equal(1);
               resp.data.users[0].firstName.should.equal(bob.firstName);
               done();
@@ -281,7 +280,7 @@ var should = require("should")
 
           it("should two multiple users with one criterion matching two records", function(done) {
             user.find({ country: bob.country}, function(resp) {
-              (resp.error == null).should.be.ok;
+              (resp.error === null).should.be.ok;
               resp.data.users.length.should.equal(2);
               resp.data.users[0].firstName.should.equal(bob.firstName);
               resp.data.users[1].firstName.should.equal(james.firstName);
@@ -294,7 +293,7 @@ var should = require("should")
 
           it("should return one user when sent criteria matching one record", function(done) {
             user.find({ firstName: bob.firstName, lastName: bob.lastName}, function(resp) {
-              (resp.error == null).should.be.ok;
+              (resp.error === null).should.be.ok;
               resp.data.users.length.should.equal(1);
               resp.data.users[0].firstName.should.equal(bob.firstName);
               resp.data.users[0].lastName.should.equal(bob.lastName);
@@ -304,7 +303,7 @@ var should = require("should")
 
           it("should return two users with criteria matching two records", function(done) {
             user.find({ country: bob.country, zip: james.zip}, function(resp) {
-              (resp.error == null).should.be.ok;
+              (resp.error === null).should.be.ok;
               resp.data.users.length.should.equal(2);
               resp.data.users[0].firstName.should.equal(bob.firstName);
               resp.data.users[1].firstName.should.equal(james.firstName);
@@ -314,7 +313,7 @@ var should = require("should")
 
           it("should return one user with a user passed as the criteria", function(done) {
             user.find(bob, function(resp) {
-              (resp.error == null).should.be.ok;
+              (resp.error === null).should.be.ok;
               resp.data.users.length.should.equal(1);
               resp.data.users[0].firstName.should.equal(bob.firstName);
               done();
@@ -376,7 +375,7 @@ var should = require("should")
             john.stateProv = "Illinois";
 
             user.update(john, function(updateResp) {
-              (updateResp.error == null).should.be.ok;
+              (updateResp.error === null).should.be.ok;
 
               var match = true;
               for (var field in john)
@@ -448,7 +447,7 @@ var should = require("should")
             john._id = findResp.data.users[0].id;
 
             user.remove({_id: john._id}, function(resp) {
-              (resp.error == null).should.be.ok;
+              (resp.error === null).should.be.ok;
               user.model.count({}, function(err, count) {
                 count.should.equal(0);
                 done();
@@ -462,7 +461,7 @@ var should = require("should")
             john._id = findResp.data.users[0].id;
 
             user.remove(john, function(resp) {
-              (resp.error == null).should.be.ok;
+              (resp.error === null).should.be.ok;
               user.model.count({}, function(err, count) {
                 count.should.equal(0);
                 done();

@@ -45,6 +45,14 @@ module.exports = function(mongoose) {
   //Export Model
   this.model = User;
 
+  //Password Encryption
+  var encryptPassword = function(password) {
+    var pwhash = crypto.createHash('md5');
+    pwhash.update(password);
+    return pwhash.digest('hex');
+  };
+  this.encryptPassword = encryptPassword;
+
   //JSON response object
   var Resp = function(obj) {
     this.error = null;
@@ -102,12 +110,12 @@ module.exports = function(mongoose) {
         userObj[field] = postData[field];
     }
     //Add all optional fields if they exist
-    for (var i=0; i<reqFields.length; i++)
+    for (var j=0; j<reqFields.length; j++)
     {
-      var field = optFields[i];
-      if (typeof postData[field] !== "undefined")
+      var optField = optFields[j];
+      if (typeof postData[optField] !== "undefined")
         {
-          userObj[field] = postData[field];
+          userObj[optField] = postData[optField];
         }
     }
 
@@ -119,9 +127,7 @@ module.exports = function(mongoose) {
             if (userObj.password.length>0)
               {
                 //On successful match, encrypt password
-                var pwhash = crypto.createHash('md5');
-                pwhash.update(userObj.password);
-                userObj.password = pwhash.digest('hex');
+                userObj.password = encryptPassword(userObj.password);
               }
               else
                 {
@@ -161,9 +167,7 @@ module.exports = function(mongoose) {
 
     if (typeof criteria.password === "string")
       {
-        var pwhash = crypto.createHash('md5');
-        pwhash.update(criteria.password);
-        criteria.password = pwhash.digest('hex');
+        criteria.password = encryptPassword(criteria.password);
       }
 
       User.find(criteria, function(err, data) {
