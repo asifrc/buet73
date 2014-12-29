@@ -17,7 +17,15 @@ module.exports = function(grunt) {
       all: { src: ['test/unit/*.js'] }
     },
     jshint: {
-      all: ['app.js', 'Gruntfile.js', 'models', 'routes', 'views/*.js', 'test'],
+      all: [
+        'app.js',
+        'config.js',
+        'Gruntfile.js',
+        'models',
+        'routes',
+        'views/*.js',
+        'test'
+      ],
       options: {
         '-W030': true
       }
