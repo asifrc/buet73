@@ -1,10 +1,11 @@
 //Bismillah
 var router = require('express').Router();
 var mongoose = require('mongoose');
+var CONFIG = require('../config');
 
 //Connect to MongoDB
 var mongoUrl = "mongodb://localhost/buet73";
-mongoose.connect(mongoUrl);
+mongoose.connect(CONFIG.DB.URL);
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function cb() {
