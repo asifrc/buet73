@@ -14,7 +14,8 @@
     "morgan": "~1.5.0",
     "serve-favicon": "~2.2.0",
     "debug": "~2.1.0",
-    "jade": "~1.8.2"
+    "jade": "~1.8.2",
+    "strong-agent": "~1.2.1"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
