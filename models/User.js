@@ -15,6 +15,21 @@ var crypto = require('crypto');
 
 var autoIncrement = require('mongoose-auto-increment');
 
+//JSON response object
+var Resp = function(obj) {
+  this.error = null;
+  this.data = (typeof obj === "object") ? obj : null;
+};
+
+var respond = function(ret, cb) {
+  if (typeof cb === "function")
+    {
+      cb(ret);
+    }
+    return ret;
+};
+
+
 //Export Constructor
 module.exports = function(mongoose) {
 
@@ -49,27 +64,42 @@ module.exports = function(mongoose) {
   //Export Model
   this.model = User;
 
+  //Check password validity and confirmation
+  var validatePassword = function(password, cpassword) {
+    validations = [
+      {
+        msg: "Password must be provided",
+        check: function(pw, cpw) { return (typeof pw !== "undefined"); }
+      },
+      {
+        msg: "Password must be confirmed",
+        check: function(pw, cpw) { return (typeof cpw !== "undefined"); }
+      },
+      {
+        msg: "Passwords do not match",
+        check: function(pw, cpw) { return (pw==cpw); }
+      },
+      {
+        msg: "Password cannot be blank",
+        check: function(pw, cpw) { return (pw.length>0); }
+      }
+    ];
+    var results = [];
+    validations.map(function(validation) {
+      if (!validation.check(password, cpassword)) {
+        results.push(validation.msg);
+      }
+    });
+    var error =  (results.length > 0) ? results[0] : null;
+    return error;
+  };
+
   //Password Encryption
   var encryptPassword = function(password) {
-    var pwhash = crypto.createHash('md5');
-    pwhash.update(password);
-    return pwhash.digest('hex');
+    return password;
   };
   this.encryptPassword = encryptPassword;
 
-  //JSON response object
-  var Resp = function(obj) {
-    this.error = null;
-    this.data = (typeof obj === "object") ? obj : null;
-  };
-
-  var respond = function(ret, cb) {
-    if (typeof cb === "function")
-      {
-        cb(ret);
-      }
-      return ret;
-  };
 
 
 
@@ -124,43 +154,19 @@ module.exports = function(mongoose) {
     }
 
     //Check for matching passwords and encrypt on success
-    if (typeof postData.cpassword !== "undefined")
-      {
-        if (userObj.password==postData.cpassword)
-          {
-            if (userObj.password.length>0)
-              {
-                //On successful match, encrypt password
-                userObj.password = encryptPassword(userObj.password);
-              }
-              else
-                {
-                  resp.error = "Password cannot be blank";
-                  return respond(resp, cb);
-                }
-          }
-          else
-            {
-              resp.error = "Passwords do not match";
-              return respond(resp, cb);
-            }
-      }
-      else
-        {
-          resp.error = "Password must be confirmed";
-          return respond(resp, cb);
-        }
+    if (resp.error = validatePassword(userObj.password, postData.cpassword)) {
+      return respond(resp, cb);
+    }
+    //Create user object from model
+    var user = new User(userObj);
 
-        //Create user object from model
-        var user = new User(userObj);
-
-        //Save to database
-        user.save(function(err) {
-          resp.error = err;
-          //Return User Object
-          resp = new Resp({ "users": [ user ] });
-          return respond(resp, cb);
-        });
+    //Save to database
+    user.save(function(err) {
+      resp.error = err;
+      //Return User Object
+      resp = new Resp({ "users": [ user ] });
+      return respond(resp, cb);
+    });
   };
 
   /**
