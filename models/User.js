@@ -13,6 +13,8 @@
 
 var crypto = require('crypto');
 
+var autoIncrement = require('mongoose-auto-increment');
+
 //Export Constructor
 module.exports = function(mongoose) {
 
@@ -38,6 +40,8 @@ module.exports = function(mongoose) {
     profilePic: String,
     TS: Date
   });
+  autoIncrement.initialize(mongoose);
+  schema.plugin(autoIncrement.plugin, 'User');
 
   //User Model
   var User = mongoose.model('User', schema);
