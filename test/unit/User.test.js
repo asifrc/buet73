@@ -128,9 +128,8 @@ var mongoose = require('mongoose');
                 if (field === "password") {
                   obj[field] = user.encryptPassword(obj[field]);
                 }
-                user.model.find(obj, function(err, count) {
-                  console.log(field, obj[field], count);
-                  //count.should.equal(1);
+                user.model.count(obj, function(err, count) {
+                  count.should.equal(1);
                   done();
                 });
               });
@@ -241,10 +240,11 @@ var mongoose = require('mongoose');
           bob.cpassword = bob.password;
           james.cpassword = james.password;
           user.register(bob, function(resp) {
-            user.register(james);
-            delete bob.cpassword;
-            delete james.cpassword;
-            done();
+            user.register(james, function(resp) {
+              delete bob.cpassword;
+              delete james.cpassword;
+              done();
+            });
           });
         });
 
@@ -355,13 +355,13 @@ var mongoose = require('mongoose');
 
         it("should return an error if userID is invalid", function(done) {
           user.update({ _id: "1234" }, function(resp) {
-            resp.error.name.should.equal("CastError");
+            resp.should.have.property("error");
             done();
           });
         });
 
         it("should return an error if userID not found", function(done) {
-          user.update({ _id: "52d47b2c41534264425c6e16" }, function(resp) {
+          user.update({ _id: "987654321" }, function(resp) {
             resp.error.should.equal("The user id return an invalid number of users(0)");
             done();
           });
@@ -402,6 +402,7 @@ var mongoose = require('mongoose');
 
       describe("Remove", function() {
 
+        var bobby = newBob();
         var john = newBob();
 
         before(function(done) {
@@ -409,14 +410,17 @@ var mongoose = require('mongoose');
         });
 
         beforeEach(function(done) {
-          john = newBob();
+          bobby = newBob(true);
+          john = newBob(true);
           john.firstName = "John";
           john.lastName = "Doe";
-          john.cpassword = john.password;
-          user.register(bob, function(resp) {
-            user.register(john, function(resp2) {
-              delete john.cpassword;
-              done();
+          emptyDoc(function(err) {
+            user.register(bobby, function(resp) {
+              user.register(john, function(resp2) {
+                delete bobby.cpassword;
+                delete john.cpassword;
+                done();
+              });
             });
           });
         });
@@ -430,13 +434,13 @@ var mongoose = require('mongoose');
 
         it("should return an error if userID is invalid", function(done) {
           user.remove({ _id: "1234" }, function(resp) {
-            resp.error.name.should.equal("CastError");
+            resp.should.have.property("error");
             done();
           });
         });
 
         it("should return an error if userID not found", function(done) {
-          user.remove({ _id: "52d47b2c41534264425c6e16" }, function(resp) {
+          user.remove({ _id: "987654321" }, function(resp) {
             resp.error.should.equal("The user id return an invalid number of users(0)");
             done();
           });
@@ -449,7 +453,8 @@ var mongoose = require('mongoose');
             user.remove({_id: john._id}, function(resp) {
               (resp.error === null).should.be.ok;
               user.model.count({}, function(err, count) {
-                count.should.equal(0);
+                // Only Bob should be left
+                count.should.equal(1);
                 done();
               });
             });
@@ -463,7 +468,8 @@ var mongoose = require('mongoose');
             user.remove(john, function(resp) {
               (resp.error === null).should.be.ok;
               user.model.count({}, function(err, count) {
-                count.should.equal(0);
+                // Only Bob should be left
+                count.should.equal(1);
                 done();
               });
             });
