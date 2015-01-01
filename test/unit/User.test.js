@@ -497,6 +497,60 @@ describe("User Module", function() {
       });
 
     });
+  });
 
+  describe("Authentication", function() {
+    var bob;
+
+    before(function(done) {
+      bob = newBob(true);
+      emptyDoc(function() {
+        user.register(bob, function(resp) {
+          delete bob.cpassword;
+          done();
+        });
+      });
+    });
+
+    after(function(done) {
+      emptyDoc(done);
+    });
+
+    it("should return the user if the email and password match", function(done) {
+      var bobby = {
+        email: bob.email,
+        password: bob.password
+      };
+      user.authenticate(bobby, function(resp) {
+        (resp.error === null).should.be.ok;
+        resp.data.should.have.property('user');
+        resp.data.user.firstName.should.equal(bob.firstName);
+        done();
+      });
+    });
+
+    it("should return an error if the user is not found", function(done) {
+      var bobby = {
+        email: "fakeEmail@email.com",
+        password: bob.password
+      };
+      user.authenticate(bobby, function(resp) {
+        resp.should.have.property('error');
+        resp.error.should.equal("The email provided is not registered.");
+        done();
+      });
+    });
+
+    it("should return an error when the password is incorrect", function(done) {
+      var bobby = {
+        email: bob.email,
+        password: "WrongPassword"
+      };
+      user.authenticate(bobby, function(resp) {
+        resp.should.have.property('error');
+        resp.error.should.equal("The password provided is incorrect.");
+        done();
+      });
+    });
   });
 });

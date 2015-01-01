@@ -263,5 +263,35 @@ module.exports = function(mongoose) {
         });
     });
   };
+
+  /**
+   * Authenticate User
+   */
+  this.authenticate = function(user, cb) {
+    var resp = new Resp({"user": {}});
+    var criteria = {
+      email: user.email
+    };
+    User.findOne(criteria, function(err, result) {
+      if (err) {
+        resp.error = err;
+        return respond(resp, cb);
+      }
+      if (!result) {
+        resp.error = "The email provided is not registered.";
+        return respond(resp, cb);
+      }
+      comparePassword(user.password, result.password, function(err, isMatch) {
+        if (isMatch) {
+          resp.data = { user: result };
+        }
+        else {
+          resp.error = "The password provided is incorrect.";
+        }
+        debugger;
+        return respond(resp, cb);
+      });
+    });
+  };
   return this;
 };
