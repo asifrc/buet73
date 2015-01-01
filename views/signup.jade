@@ -3,44 +3,44 @@
 extends layout
 
 block content
-	.container
-		.page-header
-			h1 Sign Up!
-				small  or&nbsp;
-					a(href="/signin") Sign In
-		.row.row-fluid.form(style="max-width: 500px;")
-			.col-xs-12
-				.form-group
-					label(for="email") Email address
-					input#email.form-control(name="email", type="email", placeholder="Enter email address")
-				.form-group
-					label(for="password") Password
-					input#password.form-control(name="password", type="password", placeholder="Create a password")
-				.form-group
-					label(for="cpassword") Confirm password
-					input#cpassword.form-control(name="cpassword", type="password", placeholder="Re-enter your password")
-				hr
-				.form-group
-					label(for="firstName") First Name
-					input#firstName.form-control(name="firstName", type="text", placeholder="Enter your first name")
-				.form-group
-					label(for="lastName") Last Name
-					input#lastName.form-control(name="lastName", type="text", placeholder="Enter your last name")
-				.form-group
-					label(for="displayName") Display Name
-					input#displayName.form-control(name="displayName", type="text", placeholder="This will be used on your profile")
-				hr
-				.form-group
-					label(for="department") Department
-					select#department.form-control(name="department")
-						option(selected="") -- Choose Department --
-						include includes/depts_dropdown.jade
-				.form-group
-					label(for="country") Country
-					select#country.form-control(name="country")
-						option(selected="") -- Choose Country --
-						include includes/countries_dropdown.jade
-				hr
-				.form-group
-					button#btnSignup.btn.btn-success.btn-lg Sign up
-	script(type='text/javascript', src='/js/signup.js')
+  .container
+    .page-header
+      h1 Sign Up!
+        small  or&nbsp;
+          a(href="/signin") Sign In
+    .row.row-fluid.form(style="max-width: 500px;")
+      .col-xs-12
+        .form-group
+          label(for="email") Email address
+          input#email.form-control(name="email", type="email", placeholder="Enter email address")
+        .form-group
+          label(for="password") Password
+          input#password.form-control(name="password", type="password", placeholder="Create a password")
+        .form-group
+          label(for="cpassword") Confirm password
+          input#cpassword.form-control(name="cpassword", type="password", placeholder="Re-enter your password")
+        hr
+        .form-group
+          label(for="firstName") First Name
+          input#firstName.form-control(name="firstName", type="text", placeholder="Enter your first name")
+        .form-group
+          label(for="lastName") Last Name
+          input#lastName.form-control(name="lastName", type="text", placeholder="Enter your last name")
+        .form-group
+          label(for="displayName") Display Name
+          input#displayName.form-control(name="displayName", type="text", placeholder="This will be used on your profile")
+        hr
+        .form-group
+          label(for="department") Department
+          select#department.form-control(name="department")
+            option(selected="") -- Choose Department --
+            include includes/depts_dropdown.jade
+        .form-group
+          label(for="country") Country
+          select#country.form-control(name="country")
+            option(selected="") -- Choose Country --
+            include includes/countries_dropdown.jade
+        hr
+        .form-group
+          button#btnSignup.btn.btn-success.btn-lg Sign up
+  script(type='text/javascript', src='/js/signup.js')
