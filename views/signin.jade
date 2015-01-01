@@ -13,17 +13,17 @@ block content
             label(for="email") Email
             input#email.form-control(type="email")
           .form-group
-            label(for="password") Password
+            label(for="password") Password&nbsp;
               small
                 a(href="#") (forgot password?)
             input#password.form-control(type="password")
           div.clearfix
             .pull-left
               button.btn.btn-primary Sign In
-              |&nbsp;or&nbsp;
-            .pull-left(style="padding-top: 5px")
-              include includes/fbbtn
+            //  |&nbsp;or&nbsp;
+            //.pull-left(style="padding-top: 5px")
+            //  include includes/fbbtn
           div(style="padding-top: 25px;")
             small
-              strong Not registered?
+              strong Not registered?&nbsp;
                 a(href="/signup") Sign Up
