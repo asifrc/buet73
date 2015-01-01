@@ -11,7 +11,7 @@
  *  - takes mongoose as parameter
  */
 
-var crypto = require('crypto');
+var bcrypt = require('bcrypt');
 
 var autoIncrement = require('mongoose-auto-increment');
 
@@ -95,13 +95,15 @@ module.exports = function(mongoose) {
   };
 
   //Password Encryption
-  var encryptPassword = function(password) {
-    return password;
+  var encryptPassword = function(password, cb) {
+    bcrypt.hash(password, 1, cb);
   };
   this.encryptPassword = encryptPassword;
 
-
-
+  var comparePassword = function(password, encryptedPw, cb) {
+    bcrypt.compare(password, encryptedPw, cb);
+  };
+  this.comparePassword = comparePassword;
 
 
   /**
@@ -153,19 +155,31 @@ module.exports = function(mongoose) {
         }
     }
 
-    //Check for matching passwords and encrypt on success
-    if (resp.error = validatePassword(userObj.password, postData.cpassword)) {
+    //Check for matching passwords
+    resp.error = validatePassword(userObj.password, postData.cpassword);
+    if (resp.error) {
       return respond(resp, cb);
     }
-    //Create user object from model
-    var user = new User(userObj);
 
-    //Save to database
-    user.save(function(err) {
-      resp.error = err;
-      //Return User Object
-      resp = new Resp({ "users": [ user ] });
-      return respond(resp, cb);
+    //Encrypt Password
+    encryptPassword(userObj.password, function(err, encryptedPassword) {
+      if (err) {
+        resp.error = err;
+        return respond(resp, cb);
+      }
+
+      userObj.password = encryptedPassword;
+
+      //Create user object from model
+      var user = new User(userObj);
+
+      //Save to database
+      user.save(function(err) {
+        resp.error = err;
+        //Return User Object
+        resp = new Resp({ "users": [ user ] });
+        return respond(resp, cb);
+      });
     });
   };
 
@@ -175,16 +189,14 @@ module.exports = function(mongoose) {
   var findUser = function(criteria, cb) {
     var resp = new Resp({ users: [] });
 
-    if (typeof criteria.password === "string")
-      {
-        criteria.password = encryptPassword(criteria.password);
-      }
+    //Never search by password
+    delete criteria.password;
 
-      User.find(criteria, function(err, data) {
-        resp = new Resp({ users: data });
-        resp.error = err;
-        return respond(resp,cb);
-      });
+    User.find(criteria, function(err, data) {
+      resp = new Resp({ users: data });
+      resp.error = err;
+      return respond(resp,cb);
+    });
   };
   this.find = findUser;
 

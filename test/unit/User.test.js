@@ -115,23 +115,32 @@ var mongoose = require('mongoose');
         });
 
         describe("Required Fields", function() {
-          reqFields.map(function(field) {
+          var fields = reqFields.filter(function(v) { return v !== "password"; });
+          fields.map(function(field) {
             it("should save "+field, function(done) {
               bob[field] = "TestValue";
-              if (field === "password") {
-                bob.cpassword = "TestValue";
-              }
               user.register(bob, function(resp) {
                 (resp.error === null).should.be.ok;
                 var obj = {};
                 obj[field] = "TestValue";
-                if (field === "password") {
-                  obj[field] = user.encryptPassword(obj[field]);
-                }
                 user.model.count(obj, function(err, count) {
                   count.should.equal(1);
                   done();
                 });
+              });
+            });
+          });
+
+          it("should save password", function(done) {
+            var john = newBob();
+            john.password = "TestPassword";
+            john.cpassword = "TestPassword";
+            user.register(john, function(resp) {
+              (resp.error === null).should.be.ok;
+              var encryptedPw = resp.data.users[0].password;
+              user.comparePassword(john.password, encryptedPw, function(err, same) {
+                same.should.be.ok;
+                done();
               });
             });
           });
@@ -195,7 +204,18 @@ var mongoose = require('mongoose');
           });
         });
 
-        describe("Invalid Password", function() {
+        describe("Password", function() {
+          var bob = {};
+          beforeEach(function() {
+            bob = newBob(true);
+          });
+
+          it("should encrypt the password", function(done) {
+            user.register(bob, function(resp) {
+              resp.data.users[0].password.should.not.equal(bob.password);
+              done();
+            });
+          });
           it("should return an error when confirmation field is missing", function(done) {
             delete bob.cpassword;
             user.register(bob, function(resp) {
