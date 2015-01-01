@@ -24,4 +24,17 @@ router.get('/', function(req, res) {
   });
 });
 
+
+/* POST user auth */
+router.post('/login', function(req, res) {
+  User.authenticate(req.body, function(resp) {
+    if (!resp.error) {
+      req.session.user = resp.data.user._doc;
+      delete req.session.user.password;
+    }
+    respond(res, resp);
+  });
+});
+
+
 module.exports = router;

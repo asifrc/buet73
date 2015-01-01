@@ -268,7 +268,7 @@ module.exports = function(mongoose) {
    * Authenticate User
    */
   this.authenticate = function(user, cb) {
-    var resp = new Resp({"user": {}});
+    var resp = new Resp();
     var criteria = {
       email: user.email
     };
