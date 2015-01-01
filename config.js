@@ -2,7 +2,7 @@
 
 var CONFIG = {
   "DB": {
-    "URL": process.env.MONGO_DB || "mongodb://localhost:3000/buet73"
+    "URL": process.env.MONGO_DB || "mongodb://localhost/buet73"
   }
 };
 
