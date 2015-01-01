@@ -77,14 +77,9 @@ var emptyDoc = function(cb) {
 
 describe("User Module", function() {
   describe("User Model", function() {
-    var bob, bobby;
 
     before(function(done) {
       emptyDoc(done);
-    });
-
-    beforeEach(function() {
-      bob = newBob();
     });
 
     afterEach(function(done) {
@@ -92,13 +87,15 @@ describe("User Module", function() {
     });
 
     it("should create a User object", function() {
-      delete bob.cpassword;
+      var bob = newBob();
       bobby = new user.model(bob);
       bob.firstName.should.equal(bobby.firstName);
 
     });
 
     describe("Registration", function() {
+
+      var bob;
 
       beforeEach(function() {
         bob = newBob(true);
@@ -205,7 +202,7 @@ describe("User Module", function() {
       });
 
       describe("Password", function() {
-        var bob = {};
+        var bob;
         beforeEach(function() {
           bob = newBob(true);
         });
@@ -249,16 +246,17 @@ describe("User Module", function() {
     });
 
     describe("Find", function() {
-      var james = newBob();
-      james.firstName = "James";
+      var bob;
+      var james;
 
       before(function(done) {
         emptyDoc(done);
       });
 
       beforeEach(function(done) {
-        bob.cpassword = bob.password;
-        james.cpassword = james.password;
+        bob = newBob(true);
+        james = newBob(true);
+        james.firstName = "James";
         user.register(bob, function(resp) {
           user.register(james, function(resp) {
             delete bob.cpassword;
@@ -345,13 +343,15 @@ describe("User Module", function() {
 
     describe("Update", function() {
 
-      var john = newBob();
+      var bob;
+      var john;
 
       before(function(done) {
         emptyDoc(done);
       });
 
       beforeEach(function(done) {
+        bob = newBob();
         john = newBob();
         john.firstName = "John";
         john.lastName = "Doe";
