@@ -12,4 +12,15 @@ router.get('/signup', function(req, res) {
 });
 
 
+router.get('/signin', function(req, res) {
+  res.render('signin', { title: "Sign In" });
+});
+
+
+router.get('/signout', function(req, res) {
+  req.session.destroy(function() {
+    res.redirect('/');
+  });
+});
+
 module.exports = router;

@@ -3,27 +3,29 @@
 extends layout
 
 block content
-	.container.main
-		.panel.panel-default.center-block(style="max-width: 500px;")
-			.panel-heading
-				h3.panel-title Sign In
-			.panel-body
-				form(role="form")
-					.form-group
-						label(for="email") Email
-						input#email.form-control(type="email") 
-					.form-group
-						label(for="password") Password 
-							small
-								a(href="#") (forgot password?)
-						input#password.form-control(type="password")
-					div.clearfix
-						.pull-left
-							button.btn.btn-primary Sign In
-							|&nbsp;or&nbsp;
-						.pull-left(style="padding-top: 5px")
-							include includes/fbbtn
-					div(style="padding-top: 25px;")
-						small
-							strong Not registered? 
-								a(href="/signup") Sign Up
+  .container.main
+    .panel.panel-default.center-block(style="max-width: 500px;")
+      .panel-heading
+        h3.panel-title Sign In
+      .panel-body
+        p#pError.text-danger
+        form(role="form")
+          .form-group
+            label(for="email") Email
+            input#email.form-control(type="email")
+          .form-group
+            label(for="password") Password&nbsp;
+            //  small
+            //    a(href="#") (forgot password?)
+            input#password.form-control(type="password")
+          div.clearfix
+            .pull-left
+              #btnSignin.btn.btn-primary Sign In
+            //  |&nbsp;or&nbsp;
+            //.pull-left(style="padding-top: 5px")
+            //  include includes/fbbtn
+          div(style="padding-top: 25px;")
+            small
+              strong Not registered?&nbsp;
+                a(href="/signup") Sign Up
+  script(type='text/javascript', src='/js/signin.js')

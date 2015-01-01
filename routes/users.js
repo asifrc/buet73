@@ -1,18 +1,8 @@
 //Bismillah
 var router = require('express').Router();
-var mongoose = require('mongoose');
-var CONFIG = require('../config');
 
-//Connect to MongoDB
-var mongoUrl = "mongodb://localhost/buet73";
-mongoose.connect(CONFIG.DB.URL);
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function cb() {
-    console.log("Connected to MongoDB at "+mongoUrl); //DEV
-});
-
-var User = require('../models/User')(mongoose);
+var DB = require('../models/db');
+var User = require('../models/User')(DB.mongoose);
 
 var respond = function(res, result) {
   res.contentType('application/json');
@@ -33,5 +23,18 @@ router.get('/', function(req, res) {
     respond(res, data);
   });
 });
+
+
+/* POST user auth */
+router.post('/login', function(req, res) {
+  User.authenticate(req.body, function(resp) {
+    if (!resp.error) {
+      req.session.user = resp.data.user._doc;
+      delete req.session.user.password;
+    }
+    respond(res, resp);
+  });
+});
+
 
 module.exports = router;
