@@ -8,18 +8,19 @@ block content
       .panel-heading
         h3.panel-title Sign In
       .panel-body
+        p#pError.text-danger
         form(role="form")
           .form-group
             label(for="email") Email
             input#email.form-control(type="email")
           .form-group
             label(for="password") Password&nbsp;
-              small
-                a(href="#") (forgot password?)
+            //  small
+            //    a(href="#") (forgot password?)
             input#password.form-control(type="password")
           div.clearfix
             .pull-left
-              button.btn.btn-primary Sign In
+              #btnSignin.btn.btn-primary Sign In
             //  |&nbsp;or&nbsp;
             //.pull-left(style="padding-top: 5px")
             //  include includes/fbbtn
@@ -27,3 +28,4 @@ block content
             small
               strong Not registered?&nbsp;
                 a(href="/signup") Sign Up
+  script(type='text/javascript', src='/js/signin.js')
