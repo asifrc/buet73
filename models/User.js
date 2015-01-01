@@ -288,7 +288,6 @@ module.exports = function(mongoose) {
         else {
           resp.error = "The password provided is incorrect.";
         }
-        debugger;
         return respond(resp, cb);
       });
     });
