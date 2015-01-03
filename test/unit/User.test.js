@@ -155,22 +155,18 @@ describe("User Module", function() {
         });
       });
 
-      /*
-         describe("Empty String in Required Field", function() {
-         for (var i=0; i<reqFields.length; i++)
-         {
-         var field = reqFields[i];
-         it("should return an error when "+field+" is missing", function(done) {
-         bob = newBob();
-         bob[field] = "";
-         user.register(bob, function(resp) {
-         resp.error.should.equal("Bad request: "+field+" field is missing");
-         done();
-         });
-         });
-         }
-         });
-         */
+      describe.skip("Empty String in Required Field", function() {
+        reqFields.map(function(field) {
+          it("should return an error when "+field+" is blank", function(done) {
+            bob = newBob(true);
+            bob[field] = "";
+            user.register(bob, function(resp) {
+            resp.error.should.equal("Bad request: "+field+" field is missing");
+            done();
+            });
+          });
+        });
+      });
 
       describe("Optional Fields", function() {
         optFields.map(function(field) {
