@@ -157,7 +157,7 @@ describe("User Module", function() {
         });
       });
 
-      describe.skip("Empty String in Required Field", function() {
+      describe("Empty String in Required Field", function() {
         reqFields.map(function(field) {
           it("should return an error when "+field+" is blank", function(done) {
             bob = newBob(true);

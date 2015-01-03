@@ -135,9 +135,15 @@ module.exports = function(mongoose) {
 
     var userObj = {};
     //Add all required fields to userObj, return error if missing
+    var isMissing = function(value) {
+      if (typeof value === "undefined") {
+        return true;
+      }
+      return (value === "");
+    };
     for (var i=0; i<reqFields.length; i++) {
       var field = reqFields[i];
-      if (typeof postData[field] === "undefined") {
+      if (isMissing(postData[field])) {
         resp.error = ERRORS.signup[field]['missing'];
         return respond(resp, cb);
       }
