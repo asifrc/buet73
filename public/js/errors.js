@@ -47,6 +47,6 @@ var ERRORS = (function() {
   return self;
 })();
 
-if (module) {
+if (typeof module !== "undefined") {
   module.exports = ERRORS;
 }
