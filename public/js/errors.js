@@ -1,5 +1,5 @@
-var ERRORS = new function() {
-  var self = this;
+var ERRORS = (function() {
+  var self = {};
 
   var isRequired = function(title) {
     return "Please provide your " + title + ".";
@@ -29,21 +29,23 @@ var ERRORS = new function() {
     'country': {
       'name': "Country"
     },
-  }
+  };
 
   for (var field in self.signup) {
     self.signup[field].missing = isRequired(self.signup[field].name);
-  };
+  }
 
   self.user = {
     'notFound': "The user was not found."
-  }
+  };
 
   self.auth = {
     'notFound': "The email provided is not registered.",
     'wrongPassword': "The password provided is incorrect."
   };
-};
+
+  return self;
+})();
 
 if (module) {
   module.exports = ERRORS;
