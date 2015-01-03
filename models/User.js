@@ -12,8 +12,9 @@
  */
 
 var bcrypt = require('bcrypt');
-
 var autoIncrement = require('mongoose-auto-increment');
+
+var ERRORS = require('../public/js/errors');
 
 //JSON response object
 var Resp = function(obj) {
@@ -67,19 +68,19 @@ module.exports = function(mongoose) {
   var validatePassword = function(password, cpassword) {
     validations = [
       {
-        msg: "Password must be provided",
+        msg: ERRORS.signup['password']['missing'],
         check: function(pw, cpw) { return (typeof pw !== "undefined"); }
       },
       {
-        msg: "Password must be confirmed",
+        msg: ERRORS.signup['password']['unconfirmed'],
         check: function(pw, cpw) { return (typeof cpw !== "undefined"); }
       },
       {
-        msg: "Passwords do not match",
+        msg: ERRORS.signup['password']['mismatch'],
         check: function(pw, cpw) { return (pw==cpw); }
       },
       {
-        msg: "Password cannot be blank",
+        msg: ERRORS.signup['password']['missing'],
         check: function(pw, cpw) { return (pw.length>0); }
       }
     ];
@@ -137,7 +138,7 @@ module.exports = function(mongoose) {
     for (var i=0; i<reqFields.length; i++) {
       var field = reqFields[i];
       if (typeof postData[field] === "undefined") {
-        resp.error = "Bad request: "+field+" field is missing";
+        resp.error = ERRORS.signup[field]['missing'];
         return respond(resp, cb);
       }
       userObj[field] = postData[field];
@@ -201,7 +202,7 @@ module.exports = function(mongoose) {
   var findById = function(criteria, cb, handler) {
     var resp = new Resp();
     if (typeof criteria._id !== "string") {
-      resp.error = "Invalid format - userID is invalid";
+      resp.error = ERRORS.user['notFound'];
       return handler(resp);
     }
     findUser({_id: criteria._id}, function(response) {
@@ -209,7 +210,7 @@ module.exports = function(mongoose) {
         return handler(response);
       }
       if (response.data.users.length != 1) {
-        resp.error = "The user id return an invalid number of users("+response.data.users.length+")";
+        resp.error = ERRORS.user['notFound'];
         return handler(resp);
       }
       handler(response);
@@ -267,7 +268,7 @@ module.exports = function(mongoose) {
         return respond(resp, cb);
       }
       if (!result) {
-        resp.error = "The email provided is not registered.";
+        resp.error = ERRORS.auth['notFound'];
         return respond(resp, cb);
       }
       comparePassword(user.password, result.password, function(err, isMatch) {
@@ -275,7 +276,7 @@ module.exports = function(mongoose) {
           resp.data = { user: result };
         }
         else {
-          resp.error = "The password provided is incorrect.";
+          resp.error = ERRORS.auth['wrongPassword'];
         }
         return respond(resp, cb);
       });

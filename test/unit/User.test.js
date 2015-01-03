@@ -8,6 +8,8 @@ var should = require("should");
 var assert = require("assert");
 var mongoose = require('mongoose');
 
+var ERRORS = require('../../public/js/errors');
+
 //Connect to MongoDB
 var mongoUrl = "mongodb://localhost/buet73tests";
 mongoose.connect(mongoUrl);
@@ -148,7 +150,7 @@ describe("User Module", function() {
           it("should return an error when "+field+" is missing", function(done) {
             delete bob[field];
             user.register(bob, function(resp) {
-              resp.error.should.equal("Bad request: "+field+" field is missing");
+              resp.error.should.equal(ERRORS.signup[field]['missing']);
               done();
             });
           });
@@ -161,7 +163,7 @@ describe("User Module", function() {
             bob = newBob(true);
             bob[field] = "";
             user.register(bob, function(resp) {
-            resp.error.should.equal("Bad request: "+field+" field is missing");
+            resp.error.should.equal(ERRORS.signup[field]['missing']);
             done();
             });
           });
@@ -190,7 +192,7 @@ describe("User Module", function() {
           it("should still save successfully when "+field+" is missing", function(done) {
             delete bob[field];
             user.register(bob, function(resp) {
-              resp.error.should.equal("Bad request: "+field+" field is missing");
+              resp.error.should.equal(ERRORS.signup[field]['missing']);
               done();
             });
           });
@@ -212,14 +214,14 @@ describe("User Module", function() {
         it("should return an error when confirmation field is missing", function(done) {
           delete bob.cpassword;
           user.register(bob, function(resp) {
-            resp.error.should.equal("Password must be confirmed");
+            resp.error.should.equal(ERRORS.signup['password']['unconfirmed']);
             done();
           });
         });
         it("should return an error on mismatch", function(done) {
           bob.cpassword = "mismatch";
           user.register(bob, function(resp) {
-            resp.error.should.equal("Passwords do not match");
+            resp.error.should.equal(ERRORS.signup['password']['mismatch']);
             done();
           });
         });
@@ -227,7 +229,7 @@ describe("User Module", function() {
           bob.password = "";
           bob.cpassword = "";
           user.register(bob, function(resp) {
-            resp.error.should.equal("Password cannot be blank");
+            resp.error.should.equal(ERRORS.signup['password']['missing']);
             done();
           });
         });
@@ -364,7 +366,7 @@ describe("User Module", function() {
 
       it("should return an error if userID property is missing", function(done) {
         user.update({}, function(resp) {
-          resp.error.should.equal("Invalid format - userID is invalid");
+          resp.error.should.equal(ERRORS.user['notFound']);
           done();
         });
       });
@@ -378,7 +380,7 @@ describe("User Module", function() {
 
       it("should return an error if userID not found", function(done) {
         user.update({ _id: "987654321" }, function(resp) {
-          resp.error.should.equal("The user id return an invalid number of users(0)");
+          resp.error.should.equal(ERRORS.user['notFound']);
           done();
         });
       });
@@ -443,7 +445,7 @@ describe("User Module", function() {
 
       it("should return an error if userID property is missing", function(done) {
         user.remove({}, function(resp) {
-          resp.error.should.equal("Invalid format - userID is invalid");
+          resp.error.should.equal(ERRORS.user['notFound']);
           done();
         });
       });
@@ -457,7 +459,7 @@ describe("User Module", function() {
 
       it("should return an error if userID not found", function(done) {
         user.remove({ _id: "987654321" }, function(resp) {
-          resp.error.should.equal("The user id return an invalid number of users(0)");
+          resp.error.should.equal(ERRORS.user['notFound']);
           done();
         });
       });
@@ -532,7 +534,7 @@ describe("User Module", function() {
       };
       user.authenticate(bobby, function(resp) {
         resp.should.have.property('error');
-        resp.error.should.equal("The email provided is not registered.");
+        resp.error.should.equal(ERRORS.auth['notFound']);
         done();
       });
     });
@@ -544,7 +546,7 @@ describe("User Module", function() {
       };
       user.authenticate(bobby, function(resp) {
         resp.should.have.property('error');
-        resp.error.should.equal("The password provided is incorrect.");
+        resp.error.should.equal(ERRORS.auth['wrongPassword']);
         done();
       });
     });
