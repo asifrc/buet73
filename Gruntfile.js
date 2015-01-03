@@ -27,7 +27,8 @@ module.exports = function(grunt) {
         'test'
       ],
       options: {
-        '-W030': true
+        '-W030': true,
+        '-W069': true
       }
 
     },
