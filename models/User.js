@@ -22,11 +22,10 @@ var Resp = function(obj) {
 };
 
 var respond = function(ret, cb) {
-  if (typeof cb === "function")
-    {
-      cb(ret);
-    }
-    return ret;
+  if (typeof cb === "function") {
+    cb(ret);
+  }
+  return ret;
 };
 
 
@@ -135,24 +134,20 @@ module.exports = function(mongoose) {
 
     var userObj = {};
     //Add all required fields to userObj, return error if missing
-    for (var i=0; i<reqFields.length; i++)
-    {
+    for (var i=0; i<reqFields.length; i++) {
       var field = reqFields[i];
-      if (typeof postData[field] === "undefined")
-        {
-          resp.error = "Bad request: "+field+" field is missing";
-          return respond(resp, cb);
-        }
-        userObj[field] = postData[field];
+      if (typeof postData[field] === "undefined") {
+        resp.error = "Bad request: "+field+" field is missing";
+        return respond(resp, cb);
+      }
+      userObj[field] = postData[field];
     }
     //Add all optional fields if they exist
-    for (var j=0; j<reqFields.length; j++)
-    {
+    for (var j=0; j<reqFields.length; j++) {
       var optField = optFields[j];
-      if (typeof postData[optField] !== "undefined")
-        {
-          userObj[optField] = postData[optField];
-        }
+      if (typeof postData[optField] !== "undefined") {
+        userObj[optField] = postData[optField];
+      }
     }
 
     //Check for matching passwords
@@ -205,23 +200,20 @@ module.exports = function(mongoose) {
    */
   var findById = function(criteria, cb, handler) {
     var resp = new Resp();
-    if (typeof criteria._id !== "string")
-      {
-        resp.error = "Invalid format - userID is invalid";
+    if (typeof criteria._id !== "string") {
+      resp.error = "Invalid format - userID is invalid";
+      return handler(resp);
+    }
+    findUser({_id: criteria._id}, function(response) {
+      if (response.error) {
+        return handler(response);
+      }
+      if (response.data.users.length != 1) {
+        resp.error = "The user id return an invalid number of users("+response.data.users.length+")";
         return handler(resp);
       }
-      findUser({_id: criteria._id}, function(response) {
-        if (response.error)
-          {
-            return handler(response);
-          }
-          if (response.data.users.length != 1)
-            {
-              resp.error = "The user id return an invalid number of users("+response.data.users.length+")";
-              return handler(resp);
-            }
-            handler(response);
-      });
+      handler(response);
+    });
   };
 
   /**
@@ -230,20 +222,18 @@ module.exports = function(mongoose) {
   this.update = function(criteria, cb) {
     var resp = new Resp();
     findById(criteria, cb, function(response) {
-      if (response.error)
-        {
-          return respond(response, cb);
-        }
-        user = response.data.users[0];
-        for (var field in criteria)
-          {
-            user[field] = criteria[field];
-          }
-          user.save(function(err, usr) {
-            resp = new Resp({users: [usr] });
-            resp.error = err;
-            return respond(resp, cb);
-          });
+      if (response.error) {
+        return respond(response, cb);
+      }
+      user = response.data.users[0];
+      for (var field in criteria) {
+        user[field] = criteria[field];
+      }
+      user.save(function(err, usr) {
+        resp = new Resp({users: [usr] });
+        resp.error = err;
+        return respond(resp, cb);
+      });
     });
   };
 
@@ -253,14 +243,13 @@ module.exports = function(mongoose) {
   this.remove = function(criteria, cb) {
     var resp = new Resp();
     findById(criteria, cb, function(response) {
-      if (response.error)
-        {
-          return respond(response, cb);
-        }
-        response.data.users[0].remove(function(err) {
-          resp.error = err;
-          return respond(resp, cb);
-        });
+      if (response.error) {
+        return respond(response, cb);
+      }
+      response.data.users[0].remove(function(err) {
+        resp.error = err;
+        return respond(resp, cb);
+      });
     });
   };
 
