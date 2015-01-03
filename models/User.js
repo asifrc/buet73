@@ -116,12 +116,12 @@ module.exports = function(mongoose) {
     //Check for required fields
 
     var reqFields = [
+      'email',
+      'password',
       'firstName',
       'lastName',
       'displayName',
       'department',
-      'email',
-      'password',
       'country'
     ];
     var optFields = [
