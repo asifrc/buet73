@@ -32,6 +32,7 @@ var respond = function(ret, cb) {
 
 //Export Constructor
 module.exports = function(mongoose) {
+  var self = this;
 
   /**
    * User Schema and Model
@@ -62,7 +63,7 @@ module.exports = function(mongoose) {
   var User = mongoose.model('User', schema);
 
   //Export Model
-  this.model = User;
+  self.model = User;
 
   //Check password validity and confirmation
   var validatePassword = function(password, cpassword) {
@@ -98,18 +99,18 @@ module.exports = function(mongoose) {
   var encryptPassword = function(password, cb) {
     bcrypt.hash(password, 1, cb);
   };
-  this.encryptPassword = encryptPassword;
+  self.encryptPassword = encryptPassword;
 
   var comparePassword = function(password, encryptedPw, cb) {
     bcrypt.compare(password, encryptedPw, cb);
   };
-  this.comparePassword = comparePassword;
+  self.comparePassword = comparePassword;
 
 
   /**
    * Register User (Save to Database)
    */
-  this.register = function(postData, cb) {
+  self.register = function(postData, cb) {
     //JSON response object
     var resp = new Resp();
 
@@ -200,7 +201,7 @@ module.exports = function(mongoose) {
       return respond(resp,cb);
     });
   };
-  this.find = findUser;
+  self.find = findUser;
 
   /**
    * Find a Single User
@@ -226,7 +227,7 @@ module.exports = function(mongoose) {
   /**
    * Update User by ID
    */
-  this.update = function(criteria, cb) {
+  self.update = function(criteria, cb) {
     var resp = new Resp();
     findById(criteria, cb, function(response) {
       if (response.error) {
@@ -247,7 +248,7 @@ module.exports = function(mongoose) {
   /**
    * Remove User by ID
    */
-  this.remove = function(criteria, cb) {
+  self.remove = function(criteria, cb) {
     var resp = new Resp();
     findById(criteria, cb, function(response) {
       if (response.error) {
@@ -263,7 +264,7 @@ module.exports = function(mongoose) {
   /**
    * Authenticate User
    */
-  this.authenticate = function(user, cb) {
+  self.authenticate = function(user, cb) {
     var resp = new Resp();
     var criteria = {
       email: user.email
