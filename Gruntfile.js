@@ -22,12 +22,14 @@ module.exports = function(grunt) {
         'config.js',
         'Gruntfile.js',
         'models',
+        'public/js/*.js',
         'routes',
         'views/*.js',
         'test'
       ],
       options: {
-        '-W030': true
+        '-W030': true,
+        '-W069': true
       }
 
     },
