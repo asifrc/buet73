@@ -45,6 +45,7 @@ describe("MongoDB Connection", function() {
   });
 });
 
+var bobCount = 0;
 var newBob = function(reg) {
   var bob = {
     fbid: "1234",
@@ -52,7 +53,7 @@ var newBob = function(reg) {
     lastName: "Anderson",
     displayName: "Bobby Anderson",
     department: "Electrical Engineering",
-    email: "banderson@asifchoudhury.com",
+    email: "banderson" + (bobCount++) + "@asifchoudhury.com",
     password: "unhashedpassword",
     phone: "1 123 1234",
     address: "2828 82nd St",
@@ -193,6 +194,19 @@ describe("User Module", function() {
             delete bob[field];
             user.register(bob, function(resp) {
               resp.error.should.equal(ERRORS.signup[field]['missing']);
+              done();
+            });
+          });
+        });
+      });
+
+      describe("Email", function() {
+        it("should return an error if not unique", function(done) {
+          var bob = newBob(true);
+          user.register(bob, function(resp) {
+            (resp.error === null).should.be.ok;
+            user.register(bob, function(resp) {
+              resp.error.should.equal(ERRORS.signup['email']['duplicate']);
               done();
             });
           });

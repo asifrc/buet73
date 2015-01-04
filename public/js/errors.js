@@ -19,7 +19,8 @@ var ERRORS = (function() {
       'name': "Department"
     },
     'email': {
-      'name': "Email"
+      'name': "Email",
+      'duplicate': "The email address is already in use."
     },
     'password': {
       'name': "Password",

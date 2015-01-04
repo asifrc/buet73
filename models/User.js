@@ -173,15 +173,26 @@ module.exports = function(mongoose) {
 
       userObj.password = encryptedPassword;
 
-      //Create user object from model
-      var user = new User(userObj);
+      //Ensure unique email
+      User.count({'email': userObj.email}, function(err, count) {
+        if (err) {
+          resp.error = err;
+          return respond(resp, cb);
+        }
+        if (count !== 0) {
+          resp.error = ERRORS.signup['email']['duplicate'];
+          return respond(resp, cb);
+        }
+        //Create user object from model
+        var user = new User(userObj);
 
-      //Save to database
-      user.save(function(err) {
-        resp.error = err;
-        //Return User Object
-        resp = new Resp({ "users": [ user ] });
-        return respond(resp, cb);
+        //Save to database
+        user.save(function(err) {
+          resp.error = err;
+          //Return User Object
+          resp = new Resp({ "users": [ user ] });
+          return respond(resp, cb);
+        });
       });
     });
   };
