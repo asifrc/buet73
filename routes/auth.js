@@ -23,8 +23,21 @@ router.post('/auth/login', function(req, res) {
       req.session.user = resp.data.user._doc;
       delete req.session.user.password;
     }
+    resp.redirectUrl =  req.session.nextUrl || "/";
+    delete req.session.nextUrl;
     respond(res, resp);
   });
+});
+
+/* Require authentication for all routes after this */
+router.use('/', function(req, res, next) {
+  if (typeof req.session.user === "undefined") {
+    req.session.nextUrl = req.originalUrl;
+    res.redirect('/signin');
+  }
+  else {
+    next();
+  }
 });
 
 module.exports = router;
