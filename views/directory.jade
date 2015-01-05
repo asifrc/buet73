@@ -4,15 +4,16 @@ extends layout
 
 block content
   .container(ng-app="directory")
-    .row.row-fluid
-      .col-md-1
-      .col-md-10
-        .bod
-          | Bismillah
-        .directory(ng-controller="directoryController as directory")
-          .div(ng-repeat="member in directory.members" ng-show="member._id!==directory.me._id")
-            img(ng-src="{{directory.profilePic(member).thumb}}")
-            {{member.displayName}}
+    .page-header
+      h2 Directory
+    .directory(ng-controller="directoryController as directory")
+      .media(ng-repeat="member in directory.members" ng-show="member._id!==directory.me._id")
+        a.media-left(href="#")
+          img(ng-src="{{directory.profilePic(member).thumb}}")
+        .media-body
+          h4.media-heading {{member.displayName}}
+          em {{member.department}}
+          p {{member.country}}
   script(type='text/javascript').
     var me = !{JSON.stringify(user)}
   script(type='text/javascript', src='/js/vendor/angular.min.js')
