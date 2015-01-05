@@ -6,8 +6,10 @@ block content
   .container(ng-app="directory")
     .page-header
       h2 Directory
+    .form-group
+      input.form-control(type="text",ng-model="query",placeholder="Search...",autofocus="")
     .directory(ng-controller="directoryController as directory")
-      .media(ng-repeat="member in directory.members | orderBy: 'lastName'" ng-show="member._id!==directory.me._id")
+      .media(ng-repeat="member in directory.members | filter: query | orderBy: 'lastName'" ng-show="member._id!==directory.me._id")
         a.media-left(href="#")
           img(ng-src="{{directory.profilePic(member).thumb}}")
         .media-body
