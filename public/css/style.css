@@ -32,3 +32,11 @@ h1
 	font-size: 17pt;
 	margin-bottom: 0px;
 }
+
+/**
+ * Directory
+ */
+.directory .media {
+  cursor: pointer;
+}
+
