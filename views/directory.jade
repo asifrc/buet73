@@ -7,7 +7,7 @@ block content
     .page-header
       h2 Directory
     .directory(ng-controller="directoryController as directory")
-      .media(ng-repeat="member in directory.members" ng-show="member._id!==directory.me._id")
+      .media(ng-repeat="member in directory.members | orderBy: 'lastName'" ng-show="member._id!==directory.me._id")
         a.media-left(href="#")
           img(ng-src="{{directory.profilePic(member).thumb}}")
         .media-body
