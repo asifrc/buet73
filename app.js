@@ -43,7 +43,7 @@ app.use(function(req, res, next) {
 
 app.use('/', publicRoutes);
 app.use('/', auth);
-app.use('/', members);
+app.use('/members', members);
 app.use('/api/users/', users);
 
 // catch 404 and forward to error handler
