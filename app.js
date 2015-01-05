@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var MongoStore = require('connect-mongo')(expressSession);
 
 var publicRoutes = require('./routes/index');
+var auth = require('./routes/auth');
 var users = require('./routes/users');
 var members = require('./routes/members');
 
@@ -41,6 +42,7 @@ app.use(function(req, res, next) {
 });
 
 app.use('/', publicRoutes);
+app.use('/', auth);
 app.use('/', members);
 app.use('/api/users/', users);
 
