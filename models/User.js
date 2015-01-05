@@ -30,6 +30,9 @@ var respond = function(ret, cb) {
 };
 
 
+//Singleton User Schema
+var User = false;
+
 //Export Constructor
 module.exports = function(mongoose) {
   var self = this;
@@ -60,7 +63,7 @@ module.exports = function(mongoose) {
   schema.plugin(autoIncrement.plugin, 'User');
 
   //User Model
-  var User = mongoose.model('User', schema);
+  User = User || mongoose.model('User', schema);
 
   //Export Model
   self.model = User;
