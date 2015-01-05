@@ -10,7 +10,9 @@ block content
         .bod
           | Bismillah
         .directory(ng-controller="directoryController as directory")
-          .div(ng-repeat="member in directory.members")
+          .div(ng-repeat="member in directory.members" ng-show="member._id!==directory.me._id")
             {{member.displayName}}
+  script(type='text/javascript').
+    var me = !{JSON.stringify(user)}
   script(type='text/javascript', src='/js/vendor/angular.min.js')
   script(type='text/javascript', src='/js/directory.js')

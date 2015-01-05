@@ -5,6 +5,7 @@
   app.controller('directoryController', ['$http', function($http) {
     var self = this;
 
+    self.me = me;
     self.members = [];
 
     $http.get('/api/users/').success(function(data) {
