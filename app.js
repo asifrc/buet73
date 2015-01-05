@@ -28,6 +28,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressSession({
   secret: CONFIG.SECRET,
+  resave: false,
+  saveUninitialized: false,
   store: new MongoStore({ url: CONFIG.DB.URL })
 }));
 app.use(express.static(path.join(__dirname, 'public')));
