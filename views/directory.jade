@@ -3,11 +3,14 @@
 extends layout
 
 block content
-  .container
+  .container(ng-app="directory")
     .row.row-fluid
       .col-md-1
       .col-md-10
         .bod
           | Bismillah
+        .directory(ng-controller="directoryController as directory")
+          .div(ng-repeat="member in directory.members")
+            {{member.displayName}}
   script(type='text/javascript', src='/js/vendor/angular.min.js')
   script(type='text/javascript', src='/js/directory.js')
