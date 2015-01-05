@@ -19,6 +19,10 @@
       };
       return (member.profilePic) ? member.profilePic : noPic;
     };
+
+    self.profile = function(member) {
+      window.location.href = "/members/" + member._id;
+    };
   }]);
 })();
 
