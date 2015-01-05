@@ -5,12 +5,12 @@ var signin = function() {
     email: $('#email').val(),
     password: $('#password').val()
   };
-  $.post('/api/users/login', userData, function(data) {
+  $.post('/auth/login', userData, function(data) {
     if (data.error) {
       $('#pError').text(data.error);
     }
     else {
-      window.location.href = "/";
+      window.location.href = data.redirectUrl || "/";
     }
   });
 };

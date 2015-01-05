@@ -27,7 +27,7 @@ var signUp = function() {
     $("#"+missing[0]).focus();
     return false;
   }
-  $.post('/api/users/', user, function(data) {
+  $.post('/auth/register', user, function(data) {
     if (data.error) {
     $('#formError').text(data.error);
       return false;

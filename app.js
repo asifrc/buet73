@@ -8,7 +8,9 @@ var bodyParser = require('body-parser');
 var MongoStore = require('connect-mongo')(expressSession);
 
 var publicRoutes = require('./routes/index');
+var auth = require('./routes/auth');
 var users = require('./routes/users');
+var members = require('./routes/members');
 
 var CONFIG = require('./config');
 
@@ -27,6 +29,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressSession({
   secret: CONFIG.SECRET,
+  resave: false,
+  saveUninitialized: false,
   store: new MongoStore({ url: CONFIG.DB.URL })
 }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -38,6 +42,8 @@ app.use(function(req, res, next) {
 });
 
 app.use('/', publicRoutes);
+app.use('/', auth);
+app.use('/', members);
 app.use('/api/users/', users);
 
 // catch 404 and forward to error handler
