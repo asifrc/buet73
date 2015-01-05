@@ -11,6 +11,14 @@
     $http.get('/api/users/').success(function(data) {
       self.members = data.data.users;
     });
+
+    self.profilePic = function(member) {
+      var noPic = {
+        "url": "/images/pic.gif",
+        "thumb": "/images/thumbnail/pic.gif"
+      };
+      return (member.profilePic) ? member.profilePic : noPic;
+    };
   }]);
 })();
 
