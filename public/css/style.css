@@ -40,3 +40,9 @@ h1
   cursor: pointer;
 }
 
+/**
+ * Profile
+ */
+.profile .row>div {
+  margin-top: 5px;
+}

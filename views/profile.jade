@@ -3,4 +3,19 @@
 extends layout
 
 block content
-  |Bismillah
+  .container.profile
+    ol.breadcrumb.hidden-xs
+      li
+        a(href="/") Home
+      li
+        a(href="/members") Members
+      li.active= member.displayName
+    .page-header
+      h3= member.displayName
+        small= " " + member.department
+    .row
+      .col-xs-12.col-md-3
+        img.center-block(src=member.profilePic.url)
+      .col-xs-12.col-md-3
+        p Currently lives in&nbsp;
+          span= member.country
