@@ -28,4 +28,6 @@ block content
             small
               strong Not registered?&nbsp;
                 a(href="/signup") Sign Up
+  script(type='text/javascript').
+    var nextUrl = !{JSON.stringify(nextUrl)}
   script(type='text/javascript', src='/js/signin.js')
