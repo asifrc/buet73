@@ -13,7 +13,12 @@ router.get('/signup', function(req, res) {
 
 
 router.get('/signin', function(req, res) {
-  res.render('signin', { title: "Sign In" });
+  var locals = {
+    title: "Sign In",
+    nextUrl: req.session.nextUrl || "/"
+  };
+  delete req.session.nextUrl;
+  res.render('signin', locals);
 });
 
 

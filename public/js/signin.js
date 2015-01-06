@@ -10,7 +10,7 @@ var signin = function() {
       $('#pError').text(data.error);
     }
     else {
-      window.location.href = data.redirectUrl || "/";
+      window.location.href = nextUrl || "/";
     }
   });
 };
