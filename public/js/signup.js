@@ -1,5 +1,7 @@
 //Bismillah
 
+var nextUrl = "/";
+
 var signUp = function() {
   $('.form-group').removeClass('has-error');
 
@@ -29,10 +31,10 @@ var signUp = function() {
   }
   $.post('/auth/register', user, function(data) {
     if (data.error) {
-    $('#formError').text(data.error);
+      $('#formError').text(data.error);
       return false;
     }
-    alert("Success!");
+    signin();
   });
 };
 
